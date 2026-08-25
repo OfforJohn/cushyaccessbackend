@@ -1,0 +1,254 @@
+{
+  "info": {
+    "name": "Cushy Backend - Push Notification Flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for testing auth, Expo token registration, and consultation-triggered push notifications."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "testEmail",
+      "value": ""
+    },
+    {
+      "key": "testMobile",
+      "value": ""
+    },
+    {
+      "key": "expoToken",
+      "value": "ExponentPushToken[PASTE_REAL_DOCTOR_TOKEN_HERE]"
+    }
+  ],
+  "item": [
+    {
+      "name": "1) Signup Customer",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ts = Date.now();",
+              "const random4 = Math.floor(Math.random() * 9000) + 1000;",
+              "pm.collectionVariables.set('testEmail', `testpatient${ts}@test.com`);",
+              "pm.collectionVariables.set('testMobile', `9${random4}${random4}${random4}`.slice(0, 10));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Signup status is 201 or 200', function () {",
+              "  pm.expect([200, 201]).to.include(pm.response.code);",
+              "});",
+              "const json = pm.response.json();",
+              "if (json && json.data && json.data.access_token) {",
+              "  pm.collectionVariables.set('accessToken', json.data.access_token);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Patient\",\n  \"mobile\": \"{{testMobile}}\",\n  \"callingCode\": \"+1\",\n  \"countryCode\": \"US\",\n  \"password\": \"Test@1234\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/signup/customer",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "signup",
+            "customer"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2) Login (optional, refresh token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login status is 200', function () {",
+              "  pm.expect(pm.response.code).to.eql(200);",
+              "});",
+              "const json = pm.response.json();",
+              "if (json && json.data && json.data.access_token) {",
+              "  pm.collectionVariables.set('accessToken', json.data.access_token);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"emailOrMobile\": \"{{testEmail}}\",\n  \"password\": \"Test@1234\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3) Register Expo Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "cushy-access-key",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{expoToken}}\",\n  \"deviceName\": \"iPhone 15\",\n  \"fcmToken\": \"optional-fcm-token\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/notifications/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "notifications",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4) Get Registered Expo Tokens",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "cushy-access-key",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/notifications/expo-tokens",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "notifications",
+            "expo-tokens"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5) Trigger Consultation (find-doctors)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "cushy-access-key",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"symptoms\": \"Severe headache and high fever\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/doctor/find-doctors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "doctor",
+            "find-doctors"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6) Direct Push Smoke Test (system)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "cushy-access-key",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Test Notification\",\n  \"body\": \"Push test from Postman\",\n  \"data\": { \"type\": \"SYSTEM\" }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/notifications/send-system",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "notifications",
+            "send-system"
+          ]
+        }
+      }
+    }
+  ]
+}

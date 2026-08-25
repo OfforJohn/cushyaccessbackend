@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Update - CushyAccess</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa;">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <!-- Main Container -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            
+                            <!-- Status Update Header -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 30px;">
+                                <tr>
+                                    <td align="center">
+                                        <div style="background-color: #ddd6fe; border-radius: 50%; width: 80px; height: 80px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                                            <span style="font-size: 40px;">🚚</span>
+                                        </div>
+                                        <h2 style="font-size: 28px; color: #1f2937; margin: 0 0 10px 0; font-weight: 600; font-family: Arial, sans-serif;">Order Status Update</h2>
+                                        <p style="font-size: 18px; color: #7c3aed; margin: 0; font-weight: 600; font-family: Arial, sans-serif;">Your order has been {{orderStatus}}!</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Order Summary -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #faf5ff; border: 2px solid #e9d5ff; border-radius: 12px; margin: 30px 0;">
+                                <tr>
+                                    <td style="padding: 25px;">
+                                        <h3 style="font-size: 20px; color: #7c3aed; margin: 0 0 20px 0; font-weight: 600; font-family: Arial, sans-serif;">📦 Order Summary</h3>
+                                        
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e9d5ff; font-weight: 600; color: #374151; width: 40%; font-family: Arial, sans-serif;">Order ID:</td>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e9d5ff; color: #6b7280; font-family: Arial, sans-serif;"><strong>#{{orderId}}</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e9d5ff; font-weight: 600; color: #374151; font-family: Arial, sans-serif;">Current Status:</td>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e9d5ff; color: #6b7280; font-family: Arial, sans-serif;">
+                                                    <span style="color: #000000; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">{{orderStatus}}</span>
+                                                </td>
+                                            </tr>
+<!--                                            <tr>-->
+<!--                                                <td style="padding: 12px 0; border-bottom: 1px solid #e9d5ff; font-weight: 600; color: #374151; font-family: Arial, sans-serif;">Estimated Processing:</td>-->
+<!--                                                <td style="padding: 12px 0; border-bottom: 1px solid #e9d5ff; color: #6b7280; font-family: Arial, sans-serif;">-->
+<!--                                                    {{orderETA}}</td>-->
+<!--                                            </tr>-->
+                                            <tr>
+                                                <td style="padding: 12px 0; font-weight: 600; color: #374151; font-family: Arial, sans-serif;">Created Date:</td>
+                                                <td style="padding: 12px 0; color: #6b7280; font-family: Arial, sans-serif;">{{createdAt}}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Logistics Information -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f4f6; border-radius: 8px; margin: 30px 0;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <h3 style="font-size: 18px; color: #1f2937; margin: 0 0 15px 0; font-weight: 600; font-family: Arial, sans-serif;">🚚 Logistics Information</h3>
+                                        <p style="font-size: 14px; color: #6b7280; line-height: 1.5; margin: 0 0 10px 0; font-family: Arial, sans-serif;"><strong>Delivery Address:</strong>{{deliveryAddress}}</p>
+                                        <p style="font-size: 14px; color: #6b7280; line-height: 1.5; margin: 0 0 10px 0; font-family: Arial, sans-serif;"><strong>Items:</strong>{{items}}</p>
+                                        <p style="font-size: 14px; color: #6b7280; line-height: 1.5; margin: 0 0 10px 0; font-family: Arial, sans-serif;"><strong>Tracking:</strong> Real-time tracking will be available once processing begins</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!-- CTA Buttons -->
+<!--                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 40px 0;">-->
+<!--                                <tr>-->
+<!--                                    <td align="center">-->
+<!--                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">-->
+<!--                                            <tr>-->
+<!--                                                <td style="padding-right: 10px;">-->
+<!--                                                    <a href="#" style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; font-family: Arial, sans-serif;">Track Package</a>-->
+<!--                                                </td>-->
+<!--                                                <td style="padding-left: 10px;">-->
+<!--                                                    <a href="#" style="background-color: transparent; color: #7c3aed; padding: 15px 25px; text-decoration: none; border: 2px solid #7c3aed; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; font-family: Arial, sans-serif;">View Order Details</a>-->
+<!--                                                </td>-->
+<!--                                            </tr>-->
+<!--                                        </table>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+<!--                            -->
+                            <!-- Support Section -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fef3c7; border-left: 4px solid #f59e0b; margin: 30px 0;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <h4 style="font-size: 16px; color: #92400e; margin: 0 0 10px 0; font-weight: 600; font-family: Arial, sans-serif;">💬 Need Assistance?</h4>
+                                        <p style="font-size: 14px; color: #a16207; margin: 0; font-family: Arial, sans-serif;">
+                                            Our dedicated support team is here to help with any questions about your logistics order.
+                                            Contact us at <strong>support@cushyaccess.com</strong> or call <strong>+234 707 120 0299</strong>.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin: 30px 0 0 0; font-family: Arial, sans-serif;">
+                                Thank you for choosing CushyAccess for your logistics needs. We'll continue to keep you updated on your shipment's progress.
+                            </p>
+                            
+                        </td>
+                    </tr>
+
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #1f2937; padding: 30px 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                            <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 10px 0; font-family: Arial, sans-serif;">CushyAccess</p>
+                            <p style="color: #9ca3af; font-size: 14px; margin: 0 0 20px 0; font-family: Arial, sans-serif;">Your Trusted Logistics Partner</p>
+                            <p style="color: #9ca3af; font-size: 14px; margin: 0 0 20px 0; font-family: Arial, sans-serif;">Empowering e-commerce businesses with seamless delivery solutions</p>
+
+                            <!-- Footer Links -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <!--                                        <a href="#" style="color: #a855f7; text-decoration: none; margin: 0 15px; font-family: Arial, sans-serif;">Dashboard</a>-->
+                                        <a href="https://cushyaccess.com/support/" style="color: #a855f7; text-decoration: none; margin: 0 15px; font-family: Arial, sans-serif;">Support Center</a>
+                                        <a href="#" style="color: #a855f7; text-decoration: none; margin: 0 15px; font-family: Arial, sans-serif;">API Documentation</a>
+                                        <a href="https://wa.link/jwg3s5" style="color: #a855f7; text-decoration: none; margin: 0 15px; font-family: Arial, sans-serif;">Contact Us</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Social Links -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="#" style="color: #6b7280; text-decoration: none; margin: 0 10px; font-family: Arial, sans-serif;">LinkedIn</a>
+                                        <a href="https://x.com/cushy_access" style="color: #6b7280; text-decoration: none; margin: 0 10px; font-family: Arial, sans-serif;">Twitter</a>
+                                        <a href="https://facebook.com/cushyaccess" style="color: #6b7280; text-decoration: none; margin: 0 10px; font-family: Arial, sans-serif;">Facebook</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin-top: 20px; font-size: 12px; color: #6b7280; font-family: Arial, sans-serif;">
+                                © 2026 CushyAccess. All rights reserved.<br>
+                                Tunga Roundabout, Minna Niger State, Nigeria.<br>
+                                <a href="#" style="color: #a855f7; text-decoration: none;">Unsubscribe</a> |
+                                <a href="https://cushyaccess.com/privacy/" style="color: #a855f7; text-decoration: none;">Privacy Policy</a>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

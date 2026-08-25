@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f7f4f9;font-family:Arial,sans-serif;color:#24152a">
+    <div style="max-width:600px;margin:24px auto;background:#fff;padding:30px;border-radius:14px">
+      <h2>Cushy Access Rider verification update</h2>
+      <p>Hello <strong>{{riderName}}</strong>,</p>
+      {{#if (eq status "VERIFIED")}}
+        <h1 style="color:#067647">Your {{documentName}} was approved</h1>
+        <p>We completed the review of this document. Open the rider app to see your current verification stage and any remaining steps.</p>
+      {{else}}
+        <h1 style="color:#b42318">Your {{documentName}} needs attention</h1>
+        <p>This document could not be approved. Upload a corrected copy from the &quot;Documents under review&quot; screen in the rider app.</p>
+        <p style="background:#fff2f0;padding:16px"><strong>Reason:</strong> {{rejectionReason}}</p>
+      {{/if}}
+      <p><strong>Current stage:</strong> {{riderStatus}}<br /><strong>Reviewed:</strong> {{reviewDate}}</p>
+      <p>Need help? Visit <a href="https://cushyaccess.com/support/">Cushy Access Support</a>.</p>
+    </div>
+  </body>
+</html>

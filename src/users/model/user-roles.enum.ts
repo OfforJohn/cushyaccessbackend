@@ -1,0 +1,8 @@
+export enum UserRoles {
+  THIRD_PARTY = 'THIRD_PARTY',
+  CUSTOMER = 'CUSTOMER',
+  VENDOR = 'VENDOR',
+  ADMIN = 'ADMIN',
+  DOCTOR = 'DOCTOR',
+  RIDER = 'RIDER',
+}

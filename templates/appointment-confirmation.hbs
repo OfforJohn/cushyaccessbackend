@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Appointment Confirmation - CushyAccess</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td align="center" style="padding: 20px 0;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); overflow: hidden; max-width: 600px;">
+
+          <!-- Header with Appointment Icon -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center;">
+              <h1 style="font-size: 28px; margin: 0 0 10px 0;">Appointment Confirmed</h1>
+              <p style="font-size: 16px; margin: 0; opacity: 0.9;">Your consultation is scheduled with {{doctorName}}</p>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <!-- Greeting -->
+              <p style="font-size: 16px; color: #333333; margin-bottom: 20px;">
+                Hello <strong>{{patientName}}</strong>,
+              </p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6;">
+                Thank you for booking your appointment. Your consultation has been successfully scheduled. Please find the details below:
+              </p>
+
+              <!-- Appointment Details Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 25px 0; background-color: #f7f9ff; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <tr>
+                  <td style="padding: 25px;">
+                    <table width="100%" cellpadding="8" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151; width: 40%;">Doctor:</td>
+                        <td style="padding: 8px 0; color: #6b7280;">{{doctorName}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151;">Appointment Date:</td>
+                        <td style="padding: 8px 0; color: #6b7280;">{{appointmentDay}}, {{appointmentDate}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151;">Time:</td>
+                        <td style="padding: 8px 0; color: #6b7280;">{{appointmentTime}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151;">Duration:</td>
+                        <td style="padding: 8px 0; color: #6b7280;">{{duration}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151;">Consultation Type:</td>
+                        <td style="padding: 8px 0; color: #6b7280;">{{consultationType}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151;">Consultation Fee:</td>
+                        <td style="padding: 8px 0; font-weight: 600; color: #10b981;">₦{{consultationFee}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Meeting Link Section -->
+              <h3 style="font-size: 18px; color: #1f2937; margin-top: 30px; margin-bottom: 15px;">🎥 Virtual Consultation Link</h3>
+              <p style="font-size: 15px; color: #4b5563; margin-bottom: 20px;">
+                Your consultation will be held via video call. Click the link below to join at your scheduled time:
+              </p>
+              
+              <!-- Meeting Link Button -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 25px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{meetingLink}}" 
+                       style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                      Join Virtual Consultation
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 10px;">
+                    <p style="font-size: 13px; color: #6b7280; word-break: break-all; max-width: 500px;">
+                      Or copy this link: <span style="color: #667eea;">{{meetingLink}}</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Important Notes -->
+              <div style="background-color: #fff7ed; border-left: 4px solid #f97316; padding: 16px; margin: 25px 0; border-radius: 4px;">
+                <h4 style="margin: 0 0 10px 0; color: #9a3412; font-size: 16px;">📋 Important Instructions</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 14px;">
+                  <li style="margin-bottom: 8px;">Please join 5 minutes before your scheduled time</li>
+                  <li style="margin-bottom: 8px;">Ensure you have a stable internet connection</li>
+                  <li style="margin-bottom: 8px;">Use a quiet, well-lit room for the consultation</li>
+                  <li style="margin-bottom: 8px;">Have your medical documents ready if needed</li>
+                  <li>Cancellations must be made at least 24 hours in advance for refunds</li>
+                </ul>
+              </div>
+
+              <!-- Contact Support -->
+              <p style="font-size: 15px; color: #4b5563; margin-top: 30px;">
+                Need to reschedule or have questions?<br>
+                Contact our support team at 
+                <a href="mailto:support@cushyaccess.com" style="color: #667eea; text-decoration: none;">support@cushyaccess.com</a>
+                or call <a href="tel:+2348012345678" style="color: #667eea; text-decoration: none;">+234 801 234 5678</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #1f2937; padding: 30px 20px; text-align: center; border-radius: 0 0 8px 8px;">
+              <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;">CushyAccess HealthTech</p>
+              <p style="color: #9ca3af; font-size: 14px; margin: 0 0 10px;">Your Health, Our Priority</p>
+              <p style="color: #9ca3af; font-size: 14px;">Connecting patients with trusted healthcare professionals</p>
+
+              <!-- Reminder Note -->
+              <div style="margin: 20px 0; padding: 15px; background-color: rgba(255,255,255,0.1); border-radius: 6px;">
+                <p style="color: #ffffff; font-size: 14px; margin: 0;">
+                  <strong>⏰ Reminder:</strong> You will receive a notification 1 hour before your appointment
+                </p>
+              </div>
+
+              <!-- Social Links -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 20px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="#" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Download App</a>
+                    <a href="https://cushyaccess.com/support/" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Help Center</a>
+                    <a href="https://wa.link/jwg3s5" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Live Chat</a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Social Media Icons -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 20px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="#" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">LinkedIn</a>
+                    <a href="https://x.com/cushy_access" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">Twitter</a>
+                    <a href="https://facebook.com/cushyaccess" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">Facebook</a>
+                    <a href="https://instagram.com/cushyaccess" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">Instagram</a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Footer Legal -->
+              <p style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+                © {{currentYear}} CushyAccess Medical. All rights reserved.<br>
+                Tunga Roundabout, Minna Niger State, Nigeria.<br>
+                <a href="https://cushyaccess.com/terms/" style="color: #a855f7; text-decoration: none;">Terms of Service</a> | 
+                <a href="https://cushyaccess.com/privacy/" style="color: #a855f7; text-decoration: none;">Privacy Policy</a> |
+                <a href="#" style="color: #a855f7; text-decoration: none;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

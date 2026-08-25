@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Status Update - CushyAccess</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    .header {
+      padding: 40px;
+      text-align: center;
+      color: #141414;
+    }
+    .header h1 {
+      font-size: 26px;
+      margin: 0;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .content p {
+      font-size: 15px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .content ul {
+      padding: 0;
+      list-style: none;
+      margin: 20px 0;
+    }
+    .content ul li {
+      margin-bottom: 10px;
+      font-size: 15px;
+      color: #374151;
+    }
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .items-table thead {
+      background-color: #f9fafb;
+    }
+    .items-table th,
+    .items-table td {
+      text-align: left;
+      padding: 12px 8px;
+      font-size: 14px;
+      color: #374151;
+    }
+    .items-table tr:not(:last-child) td {
+      border-bottom: 1px solid #f3f4f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🚚 Order Status Update</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <p>Hello <strong>{{customerName}}</strong>,</p>
+      <p>Your order placed on <strong>{{orderDate}}</strong> has been updated.</p>
+      <p><strong>Current Status:</strong> {{status}}</p>
+
+      <ul>
+        <li><strong>Store Name:</strong> {{storeName}}</li>
+        <li><strong>Store Address:</strong> {{storeAddress}}</li>
+        <li><strong>Delivery Fee:</strong> ₦{{deliveryFee}}</li>
+        <li><strong>Total Amount:</strong> ₦{{totalAmount}}</li>
+      </ul>
+
+      <h3 style="margin-top: 30px; margin-bottom: 10px; font-size: 16px; color: #1f2937;">📦 Items Ordered</h3>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Price (₦)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each items}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{quantity}}</td>
+            <td>{{price}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+
+      <p style="margin-top: 30px;">We’ll continue to keep you updated on your delivery progress. Thank you for choosing CushyAccess!</p>
+    </div>
+
+    <!-- Footer -->
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td style="background-color: #1f2937; padding: 30px 20px; text-align: center; border-radius: 0 0 8px 8px;">
+          <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 10px 0; font-family: Arial, sans-serif;">CushyAccess</p>
+          <p style="color: #9ca3af; font-size: 14px; margin: 0 0 10px 0; font-family: Arial, sans-serif;">Your Trusted Logistics Partner</p>
+          <p style="color: #9ca3af; font-size: 14px; margin: 0 0 20px 0; font-family: Arial, sans-serif;">Empowering e-commerce businesses with seamless delivery solutions</p>
+
+          <!-- Footer Links -->
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
+            <tr>
+              <td align="center">
+                <a href="https://cushyaccess.com/support/" style="color: #a855f7; text-decoration: none; margin: 0 15px; font-family: Arial, sans-serif;">Support Center</a>
+
+                <a href="https://wa.link/jwg3s5" style="color: #a855f7; text-decoration: none; margin: 0 15px; font-family: Arial, sans-serif;">Contact Us</a>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Social Links -->
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
+            <tr>
+              <td align="center">
+                <a href="#" style="color: #6b7280; text-decoration: none; margin: 0 10px; font-family: Arial, sans-serif;">LinkedIn</a>
+                <a href="https://x.com/cushy_access" style="color: #6b7280; text-decoration: none; margin: 0 10px; font-family: Arial, sans-serif;">Twitter</a>
+                <a href="https://facebook.com/cushyaccess" style="color: #6b7280; text-decoration: none; margin: 0 10px; font-family: Arial, sans-serif;">Facebook</a>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Legal & Address -->
+          <p style="margin-top: 20px; font-size: 12px; color: #6b7280; font-family: Arial, sans-serif;">
+            © {{currentYear}} CushyAccess. All rights reserved.<br>
+            Tunga Roundabout, Minna Niger State, Nigeria.<br>
+            <a href="#" style="color: #a855f7; text-decoration: none;">Unsubscribe</a> |
+            <a href="https://cushyaccess.com/privacy/" style="color: #a855f7; text-decoration: none;">Privacy Policy</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

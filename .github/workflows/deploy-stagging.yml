@@ -1,0 +1,51 @@
+name: Build & Deploy Stagging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write    
+      contents: read      
+
+    env:
+      AWS_REGION: eu-west-1
+      S3_BUCKET: cushyaccess-config-bucket-stagging 
+      ZIP_FILE: cushyaccess.zip
+      CODEDEPLOY_APP_NAME: stagging
+      CODEDEPLOY_DEPLOYMENT_GROUP: stagging
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Zip  directory
+        run: zip -r ${{ env.ZIP_FILE }} .
+
+
+      - name: Upload artefact to S3
+        run: |
+          aws s3 cp \
+            ${{ env.ZIP_FILE }} \
+            s3://${{ env.S3_BUCKET }}/build-artifact/${{ env.ZIP_FILE }} 
+
+
+      - name: Trigger CodeDeploy deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name      ${{ env.CODEDEPLOY_APP_NAME }} \
+            --deployment-group-name ${{ env.CODEDEPLOY_DEPLOYMENT_GROUP }} \
+            --file-exists-behavior  OVERWRITE \
+            --s3-location           bucket=${{ env.S3_BUCKET }},key=build-artifact/${{ env.ZIP_FILE }},bundleType=zip \
+            --description "GitHub Actions deployment $GITHUB_SHA"

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Appointment Notification - CushyAccess</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td align="center" style="padding: 20px 0;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); overflow: hidden; max-width: 600px;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 40px; text-align: center;">
+              <h1 style="font-size: 28px; margin: 0 0 10px 0;">📅 New Appointment Booked</h1>
+              <p style="font-size: 16px; margin: 0; opacity: 0.9;">A patient has scheduled a consultation with you</p>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <!-- Greeting -->
+              <p style="font-size: 16px; color: #333333; margin-bottom: 20px;">
+                Hello <strong>{{doctorName}}</strong>,
+              </p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6;">
+                You have a new appointment scheduled. Here are the details:
+              </p>
+
+              <!-- Appointment Details Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 25px 0; background-color: #f0f9ff; border-radius: 8px; border: 1px solid #e0f2fe;">
+                <tr>
+                  <td style="padding: 25px;">
+                    <table width="100%" cellpadding="8" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #1e40af; width: 40%;">Patient Name:</td>
+                        <td style="padding: 8px 0; color: #374151;">{{patientName}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #1e40af;">Patient Contact:</td>
+                        <td style="padding: 8px 0; color: #374151;">
+                          {{#if patientPhone}}
+                          <a href="tel:{{patientPhone}}" style="color: #4f46e5; text-decoration: none;">{{patientPhone}}</a>
+                          {{else}}
+                          <span style="color: #6b7280;">Not provided</span>
+                          {{/if}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #1e40af;">Appointment Date:</td>
+                        <td style="padding: 8px 0; color: #374151;">{{appointmentDay}}, {{appointmentDate}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #1e40af;">Time:</td>
+                        <td style="padding: 8px 0; color: #374151;">
+                          {{appointmentTime}} ({{duration}})
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #1e40af;">Consultation Type:</td>
+                        <td style="padding: 8px 0; color: #374151;">{{consultationType}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-weight: 600; color: #1e40af;">Consultation Fee:</td>
+                        <td style="padding: 8px 0; font-weight: 600; color: #10b981;">₦{{consultationFee}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Meeting Link Section -->
+              <h3 style="font-size: 18px; color: #1e40af; margin-top: 30px; margin-bottom: 15px;">🎥 Virtual Consultation Link</h3>
+              <p style="font-size: 15px; color: #4b5563; margin-bottom: 20px;">
+                Join the consultation using the link below:
+              </p>
+              
+              <!-- Meeting Link Button -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 25px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{meetingLink}}" 
+                       style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                      Join Virtual Consultation
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 10px;">
+                    <p style="font-size: 13px; color: #6b7280; word-break: break-all; max-width: 500px;">
+                      Link: <span style="color: #4f46e5;">{{meetingLink}}</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Action Buttons -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <table cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding-right: 10px;">
+                          <a href="https://doctor.cushyaccess.com/appointments" 
+                             style="display: inline-block; background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                            View All Appointments
+                          </a>
+                        </td>
+                        <td>
+                          <a href="https://doctor.cushyaccess.com/schedule" 
+                             style="display: inline-block; background-color: #f3f4f6; color: #374151; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; border: 1px solid #d1d5db;">
+                            Manage Schedule
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Important Notes for Doctor -->
+              <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 25px 0; border-radius: 4px;">
+                <h4 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px;">📋 Preparation Guidelines</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 14px;">
+                  <li style="margin-bottom: 8px;">Join 5 minutes before the scheduled time</li>
+                  <li style="margin-bottom: 8px;">Ensure stable internet connection and good lighting</li>
+                  <li style="margin-bottom: 8px;">Have your consultation notes template ready</li>
+                  <li>Keep the consultation within the allocated {{duration}} time slot</li>
+                </ul>
+              </div>
+
+              <!-- Support Contact -->
+              <p style="font-size: 15px; color: #4b5563; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                Need assistance?<br>
+                Contact doctor support at 
+                <a href="mailto:doctors@cushyaccess.com" style="color: #4f46e5; text-decoration: none;">doctors@cushyaccess.com</a>
+                or call <a href="tel:+2348012345678" style="color: #4f46e5; text-decoration: none;">+234 801 234 5678</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #1e293b; padding: 30px 20px; text-align: center; border-radius: 0 0 8px 8px;">
+              <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;">CushyAccess HealthTech</p>
+              <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 10px;">Thank you for partnering with us</p>
+
+              <!-- Reminder -->
+              <div style="margin: 20px 0; padding: 15px; background-color: rgba(255,255,255,0.1); border-radius: 6px;">
+                <p style="color: #ffffff; font-size: 14px; margin: 0;">
+                  <strong>⏰ Reminder:</strong> You'll receive a notification 30 minutes before the appointment
+                </p>
+              </div>
+
+              <!-- Quick Links -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 20px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="https://doctor.cushyaccess.com" style="color: #818cf8; text-decoration: none; margin: 0 15px;">Dashboard</a>
+                    <a href="https://doctor.cushyaccess.com/earnings" style="color: #818cf8; text-decoration: none; margin: 0 15px;">Earnings</a>
+                    <a href="https://doctor.cushyaccess.com/support" style="color: #818cf8; text-decoration: none; margin: 0 15px;">Support</a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Footer Legal -->
+              <p style="margin-top: 20px; font-size: 12px; color: #94a3b8;">
+                © {{currentYear}} CushyAccess Medical. All rights reserved.<br>
+                <a href="https://doctor.cushyaccess.com/privacy" style="color: #818cf8; text-decoration: none;">Privacy</a> | 
+                <a href="https://doctor.cushyaccess.com/terms" style="color: #818cf8; text-decoration: none;">Terms</a> |
+                <a href="#" style="color: #818cf8; text-decoration: none;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+  <head>
+    <title>OTP Notification</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      * {
+        font-family: "Century Gothic", Arial, sans-serif;
+      }
+      html, body {
+        font-family: "Century Gothic", Arial, sans-serif;
+        background-color: #f0f0f5;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+        height: auto;
+      }
+      p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 24px;
+      }
+      a {
+        color: #ffffff;
+        text-decoration: none;
+      }
+      .button {
+        background-color: #004080;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .header {
+        padding: 40px;
+        text-align: center;
+        color: rgb(61, 57, 57);
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        text-align: center;
+      }
+      .details-list {
+        list-style: none;
+        padding: 0;
+        text-align: left;
+        margin: 30px 0;
+      }
+      .details-list li {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+      .divider {
+        margin: 40px 0;
+        height: 1px;
+        background-color: #e6e6e6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section -->
+      <div class="header">
+        <h1 style="font-size: 24px; margin-top: 20px; font-weight: 600;">OTP Notification</h1>
+      </div>
+
+      <!-- Content Section -->
+      <div style="padding: 40px;">
+        <p style="font-size: 18px; font-weight: 600;">Hello {{name}},</p>
+        <p>Kindly find below your <strong>One Time Password (OTP)</strong></p>
+
+        <ul class="details-list">
+          <li><strong>OTP:</strong> <span style="color: #28a745; font-weight: bold;">{{otp}}</span></li>
+        </ul>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- Footer Section -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td style="background-color: #1f2937; padding: 30px 20px; text-align: center; border-radius: 0 0 10px 10px;">
+            <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;">CushyAccess</p>
+            <p style="color: #94a5c4; font-size: 14px; margin: 0 0 10px 0;">Your Trusted Logistics Partner</p>
+            <p style="color: #9ca3af; font-size: 14px; margin: 0 0 20px 0;">Empowering e-commerce businesses with seamless delivery solutions</p>
+
+            <!-- Footer Links -->
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
+              <tr>
+                <td align="center">
+                  <a href="https://cushyaccess.com/support/" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Support Center</a>
+ 
+                  <a href="https://wa.link/jwg3s5" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Contact Us</a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Social Links -->
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 20px 0;">
+              <tr>
+                <td align="center">
+                  <a href="#" style="color: #6b7280; text-decoration: none; margin: 0 10px;">LinkedIn</a>
+                  <a href="https://x.com/cushy_access" style="color: #6b7280; text-decoration: none; margin: 0 10px;">Twitter</a>
+                  <a href="https://facebook.com/cushyaccess" style="color: #6b7280; text-decoration: none; margin: 0 10px;">Facebook</a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Legal & Address -->
+            <p style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+              © {{currentYear}} CushyAccess. All rights reserved.<br />
+              Tunga Roundabout, Minna Niger State, Nigeria.<br />
+              <a href="#" style="color: #a855f7; text-decoration: none;">Unsubscribe</a> |
+              <a href="https://cushyaccess.com/privacy/" style="color: #a855f7; text-decoration: none;">Privacy Policy</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prescription & Consultation Summary - CushyAccess</title>
+  <style>
+    .medication-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .medication-table th {
+      background-color: #667eea;
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .medication-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      color: #4b5563;
+    }
+    .medication-table tr:last-child td {
+      border-bottom: none;
+    }
+    .medication-table tr:hover td {
+      background-color: #f9fafb;
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td align="center" style="padding: 20px 0;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); overflow: hidden; max-width: 600px;">
+
+          <!-- Header with Logo -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+              <h1 style="font-size: 26px; margin: 0;">Prescription & Consultation Summary</h1>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">{{prescriptionDate}}</p>
+            </td>
+          </tr>
+
+          <!-- Prescription Header / Doctor's Information -->
+          <tr>
+            <td style="padding: 30px 30px 0 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="width: 70%;">
+                    <h2 style="font-size: 20px; color: #1f2937; margin: 0;">{{doctorName}}</h2>
+                    <p style="color: #6b7280; margin: 5px 0;">{{doctorSpecialization}}</p>
+                    <p style="color: #6b7280; margin: 5px 0;">{{doctorContact}}</p>
+                  </td>
+                  <td style="width: 30%; text-align: right;">
+                    {{#if signatureUrl}}
+                    <img src="{{signatureUrl}}" alt="Doctor's Signature" style="max-width: 120px; max-height: 60px; border: none;" />
+                    <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">Digitally Signed</p>
+                    {{/if}}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Prescription Metadata -->
+          <tr>
+            <td style="padding: 20px 30px 0 30px;">
+              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #f3f4f6; border-radius: 8px;">
+                <tr>
+                  <td style="color: #374151;"><strong>Prescription ID:</strong> {{prescriptionId}}</td>
+                  <td style="color: #374151;"><strong>Date:</strong> {{prescribedDate}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Patient Information Section -->
+          <tr>
+            <td style="padding: 30px 30px 0 30px;">
+              <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; border-bottom: 2px solid #667eea; padding-bottom: 8px;">Patient Information</h2>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: 600; color: #374151; width: 40%;">Patient Name:</td>
+                  <td style="padding: 8px 0; color: #4b5563;">{{patientName}}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: 600; color: #374151;">Consultation ID:</td>
+                  <td style="padding: 8px 0; color: #4b5563;">{{consultationId}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Diagnosis Section -->
+          <tr>
+            <td style="padding: 30px 30px 0 30px;">
+              <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; border-bottom: 2px solid #667eea; padding-bottom: 8px;">Diagnosis</h2>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: 600; color: #374151; width: 40%;">Primary Diagnosis:</td>
+                  <td style="padding: 8px 0; color: #4b5563;">{{diagnosis}} {{#if icd10Code}}(ICD-10: {{icd10Code}}){{/if}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Prescribed Medications Section - Table Format -->
+          <tr>
+            <td style="padding: 20px 30px 0 30px;">
+              <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; border-bottom: 2px solid #667eea; padding-bottom: 8px;">Prescribed Medications</h2>
+              
+              {{#if hasControlledSubstances}}
+              <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px;">
+                <span style="color: #b91c1c; font-size: 14px;">⚠️ Contains controlled substance(s). Handle with care.</span>
+              </div>
+              {{/if}}
+
+              <!-- Medications Table -->
+              <table class="medication-table" width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+                <thead>
+                  <tr>
+                    <th style="background-color: #667eea; color: white; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px;">S/N</th>
+                    <th style="background-color: #667eea; color: white; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px;">Name</th>
+                    <th style="background-color: #667eea; color: white; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px;">Dosage</th>
+                    <th style="background-color: #667eea; color: white; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px;">Frequency</th>
+                    <th style="background-color: #667eea; color: white; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px;">Duration</th>
+                    <th style="background-color: #667eea; color: white; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px;">Instructions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each medications}}
+                  <tr>
+                    <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">{{increment @index}}</td>
+                    <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-weight: 500;">{{this.name}}</td>
+                    <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">{{this.dosage}}</td>
+                    <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">{{this.frequency}}</td>
+                    <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">{{this.duration}}</td>
+                    <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">{{this.instructions}}</td>
+                  </tr>
+                  {{else}}
+                  <tr>
+                    <td colspan="6" style="padding: 20px; text-align: center; color: #6b7280;">No medications prescribed</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+
+              <!-- Total Medications Summary -->
+              <div style="background-color: #f3f4f6; padding: 12px; border-radius: 6px; margin: 20px 0;">
+                <p style="margin: 0; color: #374151; font-size: 14px;">
+                  <strong>Total Medications:</strong> {{medicationCount}} | 
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Prescriber's Signature and Authentication -->
+          <tr>
+            <td style="padding: 30px 30px 20px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width: 50%;">
+                          {{#if signatureUrl}}
+                          <img src="{{signatureUrl}}" alt="Doctor's Signature" style="max-width: 150px; max-height: 50px;" />
+                          {{/if}}
+                          <p style="color: #1f2937; font-weight: 600; margin: 5px 0 0 0;">{{doctorName}}</p>
+                          <p style="color: #6b7280; margin: 0;">{{doctorSpecialization}}</p>
+                          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">Digitally signed on {{prescribedDate}}</p>
+                        </td>
+                        <td style="width: 50%; text-align: right;">
+                          <p style="color: #6b7280; font-size: 13px; margin: 0 0 5px 0;"><strong>NDC #:</strong> {{doctorNdcNumber}}</p>
+                          <p style="color: #6b7280; font-size: 13px; margin: 0;"><strong>Verification:</strong> {{verificationCode}}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Important Notes / Disclaimers -->
+          <tr>
+            <td style="padding: 0 30px 20px 30px;">
+              <div style="background-color: #fef9e7; padding: 12px; border-radius: 6px; font-size: 12px; color: #6b7280;">
+                <p style="margin: 0 0 5px 0;"><strong>Important:</strong> This prescription is valid only with original digital signature.</p>
+                <p style="margin: 0 0 5px 0;">• Keep out of reach of children</p>
+                <p style="margin: 0 0 5px 0;">• Complete the full course of medication as prescribed</p>
+                <p style="margin: 0 0 5px 0;">• Report any adverse effects to your doctor immediately</p>
+                <p style="margin: 0;">• This prescription expires on {{prescriptionExpiry}}</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Contact Support -->
+          <tr>
+            <td style="padding: 20px 30px 30px 30px;">
+              <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                <strong>Hotline:</strong> <a href="tel:+2347071200299" style="color: #667eea; text-decoration: none;">+234 707 120 0299</a> | 
+                <strong>Support:</strong> <a href="mailto:support@cushyaccess.com" style="color: #667eea; text-decoration: none;">support@cushyaccess.com</a> |
+                <strong>Emergency:</strong> <a href="tel:+2348071234567" style="color: #667eea; text-decoration: none;">+234 807 123 4567</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #1f2937; padding: 30px 20px; text-align: center; border-radius: 0 0 8px 8px;">
+              <p style="color: #9ca3af; font-size: 14px; margin: 0 0 10px;">powered by</p>
+              <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 15px 0;">CushyAccess HealthTech</p>
+
+              <!-- Social Links -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 15px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="#" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Download App</a>
+                    <a href="https://cushyaccess.com/support/" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Help Center</a>
+                    <a href="https://wa.link/jwg3s5" style="color: #a855f7; text-decoration: none; margin: 0 15px;">Live Chat</a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Social Media Icons -->
+              <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 15px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="#" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">LinkedIn</a>
+                    <a href="https://x.com/cushy_access" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">Twitter</a>
+                    <a href="https://facebook.com/cushyaccess" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">Facebook</a>
+                    <a href="https://instagram.com/cushyaccess" style="color: #9ca3af; text-decoration: none; margin: 0 10px;">Instagram</a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Footer Legal -->
+              <p style="margin-top: 15px; font-size: 12px; color: #6b7280;">
+                © {{currentYear}} CushyAccess Medical. All rights reserved.<br>
+                Tunga Roundabout, Minna Niger State, Nigeria.<br>
+                <a href="https://cushyaccess.com/terms/" style="color: #a855f7; text-decoration: none;">Terms of Service</a> | 
+                <a href="https://cushyaccess.com/privacy/" style="color: #a855f7; text-decoration: none;">Privacy Policy</a> |
+                <a href="#" style="color: #a855f7; text-decoration: none;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

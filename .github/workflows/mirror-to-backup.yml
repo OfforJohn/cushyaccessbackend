@@ -1,0 +1,31 @@
+name: Mirror
+
+on:
+  workflow_dispatch:   # manual trigger only
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "ornagle"
+          git config --global user.email "ornagle@users.noreply.github.com"
+
+      - name: Add backup remote and mirror-push
+        env:
+          MIRROR_PAT: ${{ secrets.MIRROR_PAT }}
+        run: |
+          # In some cases GitHub adds extra headers; ensure none interfere:
+          git config --unset-all http.https://github.com/.extraheader || true
+
+          # Add mirror remote with token-based auth:
+          git remote add backup "https://x-access-token:${MIRROR_PAT}@github.com/Cushy-Access/backup-cushy_access_backend.git"
+
+          # Perform the full mirror push (this will overwrite/deletions too)
+          git push --mirror backup

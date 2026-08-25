@@ -1,0 +1,701 @@
+{
+  "info": {
+    "name": "Cushy Monitoring API",
+    "description": "Monitoring module endpoints for Cushy backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Operations Dashboard",
+      "item": [
+        {
+          "name": "Get Operations Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/operations/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "operations", "overview"]
+            },
+            "description": "Overall operations summary with orders, riders, and stores metrics"
+          }
+        },
+        {
+          "name": "Get Order Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/operations/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "operations", "orders"]
+            },
+            "description": "Detailed order metrics breakdown"
+          }
+        },
+        {
+          "name": "Get Rider Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/operations/riders",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "operations", "riders"]
+            },
+            "description": "Detailed rider metrics breakdown"
+          }
+        },
+        {
+          "name": "Get Store Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/operations/stores",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "operations", "stores"]
+            },
+            "description": "Detailed store metrics breakdown"
+          }
+        },
+        {
+          "name": "Get Live Map Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/operations/live-map",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "operations", "live-map"]
+            },
+            "description": "Live map data with rider and order locations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure",
+      "item": [
+        {
+          "name": "Get Infrastructure Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/infrastructure/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "infrastructure", "health"]
+            },
+            "description": "System health status including API response time, error rate, and database health"
+          }
+        },
+        {
+          "name": "Get System Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/infrastructure/metrics?hours=24",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "infrastructure", "metrics"],
+              "query": [
+                {
+                  "key": "hours",
+                  "value": "24",
+                  "description": "Number of hours of metrics to retrieve"
+                }
+              ]
+            },
+            "description": "System metrics trend over time"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Revenue Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/analytics/revenue?hours=24",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "analytics", "revenue"],
+              "query": [
+                {
+                  "key": "hours",
+                  "value": "24",
+                  "description": "Number of hours of revenue data to retrieve"
+                }
+              ]
+            },
+            "description": "Revenue metrics over time"
+          }
+        },
+        {
+          "name": "Get User Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/analytics/users?hours=24",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "analytics", "users"],
+              "query": [
+                {
+                  "key": "hours",
+                  "value": "24",
+                  "description": "Number of hours of user data to retrieve"
+                }
+              ]
+            },
+            "description": "User metrics over time"
+          }
+        },
+        {
+          "name": "Get Performance Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/analytics/performance?hours=24",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "analytics", "performance"],
+              "query": [
+                {
+                  "key": "hours",
+                  "value": "24",
+                  "description": "Number of hours of performance data to retrieve"
+                }
+              ]
+            },
+            "description": "Performance metrics over time"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alerts",
+      "item": [
+        {
+          "name": "Get All Alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/alerts?limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "alerts"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Maximum number of alerts to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of alerts to skip"
+                }
+              ]
+            },
+            "description": "Get all alerts with pagination"
+          }
+        },
+        {
+          "name": "Get Active Alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/alerts/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "alerts", "active"]
+            },
+            "description": "Get only active alerts"
+          }
+        },
+        {
+          "name": "Get Alert by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/alerts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "alerts", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "alert-id-here",
+                  "description": "Alert ID"
+                }
+              ]
+            },
+            "description": "Get specific alert by ID"
+          }
+        },
+        {
+          "name": "Acknowledge Alert",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/alerts/:id/acknowledge",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "alerts", ":id", "acknowledge"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "alert-id-here",
+                  "description": "Alert ID"
+                }
+              ]
+            },
+            "description": "Acknowledge an alert"
+          }
+        },
+        {
+          "name": "Resolve Alert",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-here\",\n  \"notes\": \"Resolution notes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/alerts/:id/resolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "alerts", ":id", "resolve"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "alert-id-here",
+                  "description": "Alert ID"
+                }
+              ]
+            },
+            "description": "Resolve an alert"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incidents",
+      "item": [
+        {
+          "name": "Get All Incidents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents?status=&priority=&assignedTo=&limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status"
+                },
+                {
+                  "key": "priority",
+                  "value": "",
+                  "description": "Filter by priority"
+                },
+                {
+                  "key": "assignedTo",
+                  "value": "",
+                  "description": "Filter by assigned user"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Maximum number of incidents to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of incidents to skip"
+                }
+              ]
+            },
+            "description": "Get all incidents with filters and pagination"
+          }
+        },
+        {
+          "name": "Get Active Incidents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", "active"]
+            },
+            "description": "Get only active incidents"
+          }
+        },
+        {
+          "name": "Get Incident Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", "stats"]
+            },
+            "description": "Get incident statistics"
+          }
+        },
+        {
+          "name": "Get Incident by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Get specific incident by ID"
+          }
+        },
+        {
+          "name": "Create Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Incident title\",\n  \"description\": \"Incident description\",\n  \"priority\": \"high\",\n  \"severity\": \"critical\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents"]
+            },
+            "description": "Create a new incident"
+          }
+        },
+        {
+          "name": "Assign Incident",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedTo\": \"user-id-here\",\n  \"assignedBy\": \"admin-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/:id/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", ":id", "assign"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Assign an incident to a user"
+          }
+        },
+        {
+          "name": "Update Incident Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"updatedBy\": \"user-id-here\",\n  \"notes\": \"Status update notes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Update incident status"
+          }
+        },
+        {
+          "name": "Resolve Incident",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolvedBy\": \"user-id-here\",\n  \"resolution\": \"Resolution description\",\n  \"rootCause\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/:id/resolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", ":id", "resolve"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Resolve an incident"
+          }
+        },
+        {
+          "name": "Add Post-Mortem",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"postMortemNotes\": \"Post-mortem analysis notes\",\n  \"addedBy\": \"user-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/:id/post-mortem",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", ":id", "post-mortem"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Add post-mortem notes to an incident"
+          }
+        },
+        {
+          "name": "Close Incident",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"closedBy\": \"user-id-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/incidents/:id/close",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "incidents", ":id", "close"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Close an incident"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mobile",
+      "item": [
+        {
+          "name": "Get Mobile Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/mobile/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "mobile", "dashboard"]
+            },
+            "description": "Get mobile dashboard data"
+          }
+        },
+        {
+          "name": "Get Mobile Alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/mobile/alerts",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "mobile", "alerts"]
+            },
+            "description": "Get mobile alerts"
+          }
+        },
+        {
+          "name": "Get Mobile Incidents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/mobile/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "mobile", "incidents"]
+            },
+            "description": "Get mobile incidents"
+          }
+        },
+        {
+          "name": "Register Mobile Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device-id\",\n  \"platform\": \"ios\",\n  \"pushToken\": \"push-token\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/mobile/register-device",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "mobile", "register-device"]
+            },
+            "description": "Register a mobile device for push notifications"
+          }
+        },
+        {
+          "name": "Get Mobile Incident by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/mobile/incidents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "mobile", "incidents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Get specific mobile incident by ID"
+          }
+        },
+        {
+          "name": "Update Mobile Incident",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"notes\": \"Update notes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/mobile/incidents/:id/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "mobile", "incidents", ":id", "update"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "incident-id-here",
+                  "description": "Incident ID"
+                }
+              ]
+            },
+            "description": "Update a mobile incident"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "item": [
+        {
+          "name": "Trigger Metrics Collection",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/metrics/collect",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "metrics", "collect"]
+            },
+            "description": "Manually trigger metrics collection (for testing)"
+          }
+        }
+      ]
+    }
+  ]
+}
