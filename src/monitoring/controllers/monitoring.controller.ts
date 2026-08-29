@@ -43,6 +43,21 @@ export class MonitoringController {
     return this.dashboardService.getStoreMetrics();
   }
 
+  @Get('operations/products')
+  async getProductMetrics() {
+    return this.dashboardService.getProductMetrics();
+  }
+
+  @Get('operations/products/top')
+  async getTopProducts(@Query('limit') limit?: number) {
+    return this.dashboardService.getTopProducts(limit || 10);
+  }
+
+  @Get('operations/products/categories')
+  async getProductRevenueByCategory() {
+    return this.dashboardService.getProductRevenueByCategory();
+  }
+
   @Get('operations/live-map')
   async getLiveMapData(): Promise<LiveMapData> {
     return this.dashboardService.getLiveMapData();

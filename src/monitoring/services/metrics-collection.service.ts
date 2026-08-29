@@ -7,6 +7,7 @@ import { OperationalMetric } from '../entities/operational-metric.entity';
 import { Orders } from '../../orders/model/order.entity';
 import { Rider, RiderStatus } from '../../riders/model/rider.entity';
 import { Stores } from '../../stores/model/stores.entity';
+import { MenuItem } from '../../stores/model/menu-item.entity';
 import { OrderStatus } from '../../orders/model/enum/order-status.enum';
 
 @Injectable()
@@ -24,6 +25,8 @@ export class MetricsCollectionService {
     private ridersRepository: Repository<Rider>,
     @InjectRepository(Stores)
     private storesRepository: Repository<Stores>,
+    @InjectRepository(MenuItem)
+    private menuItemsRepository: Repository<MenuItem>,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -36,10 +39,13 @@ export class MetricsCollectionService {
       
       // Collect rider metrics
       await this.collectRiderMetrics(timestamp);
-      
+
       // Collect store metrics
       await this.collectStoreMetrics(timestamp);
-      
+
+      // Collect product metrics
+      await this.collectProductMetrics(timestamp);
+
       this.logger.debug('Operational metrics collected successfully');
     } catch (error) {
       this.logger.error('Error collecting operational metrics:', error);
@@ -160,6 +166,46 @@ export class MetricsCollectionService {
     await this.saveOperationalMetric('stores_active', active, 'count', timestamp, { status: 'active' });
     await this.saveOperationalMetric('stores_suspended', suspended, 'count', timestamp, { status: 'suspended' });
     await this.saveOperationalMetric('stores_total', total, 'count', timestamp, { status: 'total' });
+  }
+
+  private async collectProductMetrics(timestamp: Date) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Get order items with product details
+    const orderItemsRepository = this.ordersRepository.manager.getRepository('OrderItems');
+    
+    // All-time product metrics
+    const [totalProducts, availableProducts, unavailableProducts, discountedProducts] = await Promise.all([
+      this.menuItemsRepository.count(),
+      this.menuItemsRepository.count({ where: { isAvailable: true } }),
+      this.menuItemsRepository.count({ where: { isAvailable: false } }),
+      this.menuItemsRepository.count({ where: { isDiscountActive: true } }),
+    ]);
+
+    // Today's product sales
+    const todayOrderItems = await orderItemsRepository
+      .createQueryBuilder('oi')
+      .leftJoin('oi.order', 'o')
+      .where('o.createdAt BETWEEN :start AND :end', { start: todayStart, end: todayEnd })
+      .getMany();
+
+    const totalProductsSoldToday = todayOrderItems.reduce((sum, item) => sum + item.quantity, 0);
+    const uniqueProductsSoldToday = new Set(todayOrderItems.map(item => item.menuItemId)).size;
+    const productRevenueToday = todayOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Save all-time product metrics
+    await this.saveOperationalMetric('products_total', totalProducts, 'count', timestamp, { period: 'all_time' });
+    await this.saveOperationalMetric('products_available', availableProducts, 'count', timestamp, { period: 'all_time' });
+    await this.saveOperationalMetric('products_unavailable', unavailableProducts, 'count', timestamp, { period: 'all_time' });
+    await this.saveOperationalMetric('products_discounted', discountedProducts, 'count', timestamp, { period: 'all_time' });
+
+    // Save today's product metrics
+    await this.saveOperationalMetric('products_sold_today', totalProductsSoldToday, 'count', timestamp, { period: 'today' });
+    await this.saveOperationalMetric('products_unique_sold_today', uniqueProductsSoldToday, 'count', timestamp, { period: 'today' });
+    await this.saveOperationalMetric('products_revenue_today', productRevenueToday, 'currency', timestamp, { period: 'today' });
   }
 
   private async saveSystemMetric(

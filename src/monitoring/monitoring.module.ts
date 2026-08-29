@@ -22,6 +22,7 @@ import { AuthModule } from '../auth/auth.module';
 import { Orders } from '../orders/model/order.entity';
 import { Rider } from '../riders/model/rider.entity';
 import { Stores } from '../stores/model/stores.entity';
+import { MenuItem } from '../stores/model/menu-item.entity';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { Stores } from '../stores/model/stores.entity';
       Orders,
       Rider,
       Stores,
+      MenuItem,
     ]),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),

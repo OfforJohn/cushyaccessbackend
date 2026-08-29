@@ -184,6 +184,83 @@ export class DashboardService {
     ];
   }
 
+  async getProductMetrics() {
+    const recentMetrics = await this.operationalMetricRepository.find({
+      where: {
+        metricName: Like('products_%'),
+        timestamp: Between(new Date(Date.now() - 60 * 60 * 1000), new Date()),
+      },
+      order: { timestamp: 'DESC' },
+    });
+
+    const allTimeMetrics = {
+      total: this.getMetricValue(recentMetrics, 'products_total'),
+      available: this.getMetricValue(recentMetrics, 'products_available'),
+      unavailable: this.getMetricValue(recentMetrics, 'products_unavailable'),
+      discounted: this.getMetricValue(recentMetrics, 'products_discounted'),
+    };
+
+    const todayMetrics = {
+      sold: this.getMetricValue(recentMetrics, 'products_sold_today'),
+      uniqueSold: this.getMetricValue(recentMetrics, 'products_unique_sold_today'),
+      revenue: this.getMetricValue(recentMetrics, 'products_revenue_today'),
+    };
+
+    return {
+      allTime: allTimeMetrics,
+      today: todayMetrics,
+    };
+  }
+
+  async getTopProducts(limit: number = 10) {
+    const orderItemsRepository = this.ordersRepository.manager.getRepository('OrderItems');
+    
+    const topProducts = await orderItemsRepository
+      .createQueryBuilder('oi')
+      .select('oi.menuItemId', 'productId')
+      .addSelect('oi.name', 'productName')
+      .addSelect('SUM(oi.quantity)', 'totalSold')
+      .addSelect('SUM(oi.price * oi.quantity)', 'totalRevenue')
+      .addSelect('COUNT(DISTINCT oi.orderId)', 'orderCount')
+      .groupBy('oi.menuItemId, oi.name')
+      .orderBy('totalSold', 'DESC')
+      .limit(limit)
+      .getRawMany();
+
+    return topProducts.map(product => ({
+      productId: product.productId,
+      productName: product.productName,
+      totalSold: Number(product.totalSold),
+      totalRevenue: Number(product.totalRevenue),
+      orderCount: Number(product.orderCount),
+    }));
+  }
+
+  async getProductRevenueByCategory() {
+    const orderItemsRepository = this.ordersRepository.manager.getRepository('OrderItems');
+    const menuItemsRepository = this.ordersRepository.manager.getRepository('MenuItem');
+    
+    const categoryRevenue = await orderItemsRepository
+      .createQueryBuilder('oi')
+      .leftJoin(MenuItem, 'mi', 'mi.id = oi.menuItemId')
+      .leftJoin('mi.menuCategory', 'mc')
+      .select('mc.name', 'category')
+      .addSelect('SUM(oi.price * oi.quantity)', 'revenue')
+      .addSelect('SUM(oi.quantity)', 'itemsSold')
+      .addSelect('COUNT(DISTINCT oi.menuItemId)', 'uniqueProducts')
+      .where('mc.name IS NOT NULL')
+      .groupBy('mc.name')
+      .orderBy('revenue', 'DESC')
+      .getRawMany();
+
+    return categoryRevenue.map(cat => ({
+      category: cat.category,
+      revenue: Number(cat.revenue),
+      itemsSold: Number(cat.itemsSold),
+      uniqueProducts: Number(cat.uniqueProducts),
+    }));
+  }
+
   async getLiveMapData(): Promise<LiveMapData> {
     // Placeholder implementation - would integrate with actual location data
     return { riders: [], orders: [] };
