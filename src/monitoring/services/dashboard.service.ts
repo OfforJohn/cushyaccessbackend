@@ -75,10 +75,10 @@ export class DashboardService {
     });
 
     const orders = {
-      pending: this.getMetricValue(recentMetrics, 'orders_pending'),
-      inProgress: this.getMetricValue(recentMetrics, 'orders_in_progress'),
-      completed: this.getMetricValue(recentMetrics, 'orders_completed'),
-      cancelled: this.getMetricValue(recentMetrics, 'orders_cancelled'),
+      pending: this.getMetricValue(recentMetrics, 'orders_pending_today'),
+      inProgress: this.getMetricValue(recentMetrics, 'orders_in_progress_today'),
+      completed: this.getMetricValue(recentMetrics, 'orders_completed_today'),
+      cancelled: this.getMetricValue(recentMetrics, 'orders_cancelled_today'),
       totalToday: this.getMetricValue(recentMetrics, 'orders_total_today'),
     };
 
@@ -133,10 +133,27 @@ export class DashboardService {
       order: { timestamp: 'DESC' },
     });
 
-    return recentMetrics.map(metric => ({
-      status: metric.metricName.replace('orders_', ''),
-      count: Number(metric.value),
-    }));
+    // Separate all-time and today metrics
+    const allTimeMetrics = {
+      pending: this.getMetricValue(recentMetrics, 'orders_pending'),
+      inProgress: this.getMetricValue(recentMetrics, 'orders_in_progress'),
+      completed: this.getMetricValue(recentMetrics, 'orders_completed'),
+      cancelled: this.getMetricValue(recentMetrics, 'orders_cancelled'),
+      total: this.getMetricValue(recentMetrics, 'orders_total'),
+    };
+
+    const todayMetrics = {
+      pending: this.getMetricValue(recentMetrics, 'orders_pending_today'),
+      inProgress: this.getMetricValue(recentMetrics, 'orders_in_progress_today'),
+      completed: this.getMetricValue(recentMetrics, 'orders_completed_today'),
+      cancelled: this.getMetricValue(recentMetrics, 'orders_cancelled_today'),
+      total: this.getMetricValue(recentMetrics, 'orders_total_today'),
+    };
+
+    return {
+      allTime: allTimeMetrics,
+      today: todayMetrics,
+    };
   }
 
   async getRiderMetrics() {
