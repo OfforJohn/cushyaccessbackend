@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Like } from 'typeorm';
 import { Rider, RiderStatus } from '../../riders/model/rider.entity';
 import { Stores } from '../../stores/model/stores.entity';
+import { MenuItem } from '../../stores/model/menu-item.entity';
+import { Orders } from '../../orders/model/order.entity';
+import { OrderItems } from '../../orders/model/order-items.entity';
 
 export interface OperationsOverview {
   orders: {
@@ -63,6 +66,12 @@ export class DashboardService {
     private ridersRepository: Repository<Rider>,
     @InjectRepository(Stores)
     private storesRepository: Repository<Stores>,
+    @InjectRepository(Orders)
+    private ordersRepository: Repository<Orders>,
+    @InjectRepository(OrderItems)
+    private orderItemsRepository: Repository<OrderItems>,
+    @InjectRepository(MenuItem)
+    private menuItemsRepository: Repository<MenuItem>,
   ) {}
 
   async getOperationsOverview(): Promise<OperationsOverview> {
@@ -213,9 +222,7 @@ export class DashboardService {
   }
 
   async getTopProducts(limit: number = 10) {
-    const orderItemsRepository = this.ordersRepository.manager.getRepository('OrderItems');
-    
-    const topProducts = await orderItemsRepository
+    const topProducts = await this.orderItemsRepository
       .createQueryBuilder('oi')
       .select('oi.menuItemId', 'productId')
       .addSelect('oi.name', 'productName')
@@ -237,10 +244,7 @@ export class DashboardService {
   }
 
   async getProductRevenueByCategory() {
-    const orderItemsRepository = this.ordersRepository.manager.getRepository('OrderItems');
-    const menuItemsRepository = this.ordersRepository.manager.getRepository('MenuItem');
-    
-    const categoryRevenue = await orderItemsRepository
+    const categoryRevenue = await this.orderItemsRepository
       .createQueryBuilder('oi')
       .leftJoin(MenuItem, 'mi', 'mi.id = oi.menuItemId')
       .leftJoin('mi.menuCategory', 'mc')
