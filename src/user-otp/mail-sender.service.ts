@@ -1,10 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
 
 import SibApiV3Sdk from 'sib-api-v3-sdk';
+import { OperationalMetric } from '../monitoring/entities/operational-metric.entity';
 
 @Injectable()
 export class MailSenderService {
@@ -16,7 +19,10 @@ export class MailSenderService {
     Handlebars.TemplateDelegate
   >();
 
-  constructor() {
+  constructor(
+    @InjectRepository(OperationalMetric)
+    private operationalMetricRepository: Repository<OperationalMetric>,
+  ) {
     this.configService = new ConfigService();
     const defaultClient = SibApiV3Sdk.ApiClient.instance;
     const apiKey = defaultClient.authentications['api-key'];
@@ -91,15 +97,44 @@ export class MailSenderService {
     }
 
     try {
+      const startTime = Date.now();
       const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      const deliveryTime = Date.now() - startTime;
+      
       this.logger.log(`Email sent successfully: ${JSON.stringify(response)}`);
+      
+      // Track successful email delivery
+      await this.trackEmailMetric('email_sent', 1, 'count', { deliveryTime });
+      await this.trackEmailMetric('email_delivery_time_avg', deliveryTime, 'ms');
+      
       return response;
     } catch (error) {
       this.logger.error(
         'Error sending email (non-blocking):',
         error?.response?.body || error?.message || error,
       );
+      
+      // Track failed email delivery
+      await this.trackEmailMetric('email_failed', 1, 'count', { 
+        error: error?.response?.body || error?.message || 'unknown' 
+      });
+      
       return null;
+    }
+  }
+
+  private async trackEmailMetric(metricName: string, value: number, unit: string, metadata?: Record<string, any>) {
+    try {
+      const metric = this.operationalMetricRepository.create({
+        metricName,
+        value,
+        unit,
+        timestamp: new Date(),
+        metadata,
+      });
+      await this.operationalMetricRepository.save(metric);
+    } catch (error) {
+      this.logger.error('Failed to track email metric:', error);
     }
   }
 }

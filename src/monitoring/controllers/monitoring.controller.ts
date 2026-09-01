@@ -58,6 +58,17 @@ export class MonitoringController {
     return this.dashboardService.getProductRevenueByCategory();
   }
 
+  // Email Monitoring Endpoints
+  @Get('email/health')
+  async getEmailHealth() {
+    return this.dashboardService.getEmailHealth();
+  }
+
+  @Get('email/metrics')
+  async getEmailMetrics() {
+    return this.dashboardService.getEmailMetrics();
+  }
+
   @Get('operations/live-map')
   async getLiveMapData(): Promise<LiveMapData> {
     return this.dashboardService.getLiveMapData();

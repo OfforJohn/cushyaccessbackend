@@ -46,6 +46,9 @@ export class MetricsCollectionService {
       // Collect product metrics
       await this.collectProductMetrics(timestamp);
 
+      // Collect email metrics
+      await this.collectEmailMetrics(timestamp);
+
       this.logger.debug('Operational metrics collected successfully');
     } catch (error) {
       this.logger.error('Error collecting operational metrics:', error);
@@ -206,6 +209,52 @@ export class MetricsCollectionService {
     await this.saveOperationalMetric('products_sold_today', totalProductsSoldToday, 'count', timestamp, { period: 'today' });
     await this.saveOperationalMetric('products_unique_sold_today', uniqueProductsSoldToday, 'count', timestamp, { period: 'today' });
     await this.saveOperationalMetric('products_revenue_today', productRevenueToday, 'currency', timestamp, { period: 'today' });
+  }
+
+  private async collectEmailMetrics(timestamp: Date) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Get email metrics from operational metrics table
+    const recentMetrics = await this.operationalMetricRepository.find({
+      where: {
+        metricName: Like('email_%'),
+        timestamp: Between(new Date(Date.now() - 60 * 60 * 1000), new Date()),
+      },
+      order: { timestamp: 'DESC' },
+    });
+
+    const emailsSent = this.getMetricValueFromList(recentMetrics, 'email_sent');
+    const emailsFailed = this.getMetricValueFromList(recentMetrics, 'email_failed');
+    const avgDeliveryTime = this.getMetricValueFromList(recentMetrics, 'email_delivery_time_avg');
+
+    // Calculate success rate
+    const totalEmails = emailsSent + emailsFailed;
+    const successRate = totalEmails > 0 ? (emailsSent / totalEmails) * 100 : 100;
+
+    // Save email metrics
+    await this.saveOperationalMetric('email_sent', emailsSent, 'count', timestamp, { period: 'all_time' });
+    await this.saveOperationalMetric('email_failed', emailsFailed, 'count', timestamp, { period: 'all_time' });
+    await this.saveOperationalMetric('email_success_rate', successRate, 'percentage', timestamp, { period: 'all_time' });
+    await this.saveOperationalMetric('email_delivery_time_avg', avgDeliveryTime, 'ms', timestamp, { period: 'all_time' });
+
+    // Check Brevo API configuration
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    const mailFrom = process.env.MAIL_FROM;
+    const mailUsername = process.env.MAIL_USERNAME;
+
+    const apiConfigured = !!brevoApiKey && brevoApiKey.length > 0;
+    const senderConfigured = !!mailFrom && !!mailUsername;
+
+    await this.saveSystemMetric('email_api_configured', apiConfigured ? 1 : 0, 'boolean', timestamp);
+    await this.saveSystemMetric('email_sender_configured', senderConfigured ? 1 : 0, 'boolean', timestamp);
+  }
+
+  private getMetricValueFromList(metrics: any[], metricName: string): number {
+    const metric = metrics.find(m => m.metricName === metricName);
+    return metric ? Number(metric.value) : 0;
   }
 
   private async saveSystemMetric(

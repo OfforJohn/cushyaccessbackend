@@ -265,6 +265,71 @@ export class DashboardService {
     }));
   }
 
+  async getEmailMetrics() {
+    const recentMetrics = await this.operationalMetricRepository.find({
+      where: {
+        metricName: Like('email_%'),
+        timestamp: Between(new Date(Date.now() - 60 * 60 * 1000), new Date()),
+      },
+      order: { timestamp: 'DESC' },
+    });
+
+    const deliveryMetrics = {
+      sent: this.getMetricValue(recentMetrics, 'email_sent'),
+      failed: this.getMetricValue(recentMetrics, 'email_failed'),
+      successRate: this.getMetricValue(recentMetrics, 'email_success_rate'),
+      avgDeliveryTime: this.getMetricValue(recentMetrics, 'email_delivery_time_avg'),
+    };
+
+    return deliveryMetrics;
+  }
+
+  async getEmailHealth() {
+    const recentSystemMetrics = await this.systemMetricRepository.find({
+      where: {
+        metricName: Like('email_%'),
+        timestamp: Between(new Date(Date.now() - 5 * 60 * 1000), new Date()),
+      },
+      order: { timestamp: 'DESC' },
+    });
+
+    const apiConfigured = this.getMetricValue(recentSystemMetrics, 'email_api_configured') === 1;
+    const senderConfigured = this.getMetricValue(recentSystemMetrics, 'email_sender_configured') === 1;
+
+    const recentMetrics = await this.operationalMetricRepository.find({
+      where: {
+        metricName: Like('email_%'),
+        timestamp: Between(new Date(Date.now() - 60 * 60 * 1000), new Date()),
+      },
+      order: { timestamp: 'DESC' },
+    });
+
+    const successRate = this.getMetricValue(recentMetrics, 'email_success_rate');
+    const failedCount = this.getMetricValue(recentMetrics, 'email_failed');
+
+    const health = {
+      status: 'healthy' as 'healthy' | 'degraded' | 'unhealthy',
+      configuration: {
+        apiConfigured,
+        senderConfigured,
+      },
+      delivery: {
+        successRate,
+        failedCount,
+      },
+      lastCheck: new Date(),
+    };
+
+    // Determine overall health status
+    if (!apiConfigured || !senderConfigured) {
+      health.status = 'unhealthy';
+    } else if (successRate < 90 || failedCount > 10) {
+      health.status = 'degraded';
+    }
+
+    return health;
+  }
+
   async getLiveMapData(): Promise<LiveMapData> {
     // Placeholder implementation - would integrate with actual location data
     return { riders: [], orders: [] };
