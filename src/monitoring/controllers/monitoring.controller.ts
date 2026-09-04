@@ -74,6 +74,11 @@ export class MonitoringController {
     return this.dashboardService.sendTestEmail(body.email);
   }
 
+  @Get('email/logs')
+  async getEmailLogs(@Query('limit') limit?: number, @Query('offset') offset?: number) {
+    return this.dashboardService.getEmailLogs(limit || 50, offset || 0);
+  }
+
   @Get('operations/live-map')
   async getLiveMapData(): Promise<LiveMapData> {
     return this.dashboardService.getLiveMapData();

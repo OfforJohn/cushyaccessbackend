@@ -8,6 +8,7 @@ import * as Handlebars from 'handlebars';
 
 import SibApiV3Sdk from 'sib-api-v3-sdk';
 import { OperationalMetric } from '../monitoring/entities/operational-metric.entity';
+import { EmailLog, EmailStatus } from '../monitoring/entities/email-log.entity';
 
 @Injectable()
 export class MailSenderService {
@@ -22,6 +23,8 @@ export class MailSenderService {
   constructor(
     @InjectRepository(OperationalMetric)
     private operationalMetricRepository: Repository<OperationalMetric>,
+    @InjectRepository(EmailLog)
+    private emailLogRepository: Repository<EmailLog>,
   ) {
     this.configService = new ConfigService();
     const defaultClient = SibApiV3Sdk.ApiClient.instance;
@@ -118,6 +121,17 @@ export class MailSenderService {
       await this.trackEmailMetric('email_sent', 1, 'count', { deliveryTime });
       await this.trackEmailMetric('email_delivery_time_avg', deliveryTime, 'ms');
       
+      // Log email to database
+      await this.logEmail({
+        recipient,
+        subject,
+        template,
+        status: EmailStatus.SENT,
+        messageId: response?.messageId || null,
+        deliveryTime,
+        error: null,
+      });
+      
       return response;
     } catch (error) {
       this.logger.error(
@@ -128,6 +142,17 @@ export class MailSenderService {
       // Track failed email delivery
       await this.trackEmailMetric('email_failed', 1, 'count', { 
         error: error?.response?.body || error?.message || 'unknown' 
+      });
+      
+      // Log failed email to database
+      await this.logEmail({
+        recipient,
+        subject,
+        template,
+        status: EmailStatus.FAILED,
+        messageId: null,
+        deliveryTime: null,
+        error: error?.response?.body || error?.message || 'unknown',
       });
       
       return null;
@@ -146,6 +171,31 @@ export class MailSenderService {
       await this.operationalMetricRepository.save(metric);
     } catch (error) {
       this.logger.error('Failed to track email metric:', error);
+    }
+  }
+
+  private async logEmail(data: {
+    recipient: string;
+    subject: string;
+    template: string;
+    status: EmailStatus;
+    messageId: string | null;
+    deliveryTime: number | null;
+    error: string | null;
+  }) {
+    try {
+      const emailLog = this.emailLogRepository.create({
+        recipient: data.recipient,
+        subject: data.subject,
+        template: data.template,
+        status: data.status,
+        messageId: data.messageId,
+        deliveryTime: data.deliveryTime,
+        error: data.error,
+      });
+      await this.emailLogRepository.save(emailLog);
+    } catch (error) {
+      this.logger.error('Failed to log email:', error);
     }
   }
 }

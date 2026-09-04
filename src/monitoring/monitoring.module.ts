@@ -16,6 +16,7 @@ import { MonitoringAlert } from './entities/monitoring-alert.entity';
 import { SystemMetric } from './entities/system-metric.entity';
 import { OperationalMetric } from './entities/operational-metric.entity';
 import { Incident } from './entities/incident.entity';
+import { EmailLog } from './entities/email-log.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
@@ -33,6 +34,7 @@ import { UserOtpModule } from '../user-otp/user-otp.module';
       SystemMetric,
       OperationalMetric,
       Incident,
+      EmailLog,
       Orders,
       Rider,
       Stores,

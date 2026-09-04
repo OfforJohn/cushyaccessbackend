@@ -4,6 +4,7 @@ import { Repository, Between, Like } from 'typeorm';
 import { OperationalMetric } from '../entities/operational-metric.entity';
 import { SystemMetric } from '../entities/system-metric.entity';
 import { MonitoringAlert } from '../entities/monitoring-alert.entity';
+import { EmailLog } from '../entities/email-log.entity';
 import { Rider, RiderStatus } from '../../riders/model/rider.entity';
 import { Stores } from '../../stores/model/stores.entity';
 import { Orders } from '../../orders/model/order.entity';
@@ -63,6 +64,8 @@ export class DashboardService {
     private systemMetricRepository: Repository<SystemMetric>,
     @InjectRepository(MonitoringAlert)
     private alertRepository: Repository<MonitoringAlert>,
+    @InjectRepository(EmailLog)
+    private emailLogRepository: Repository<EmailLog>,
     @InjectRepository(Rider)
     private ridersRepository: Repository<Rider>,
     @InjectRepository(Stores)
@@ -354,6 +357,31 @@ export class DashboardService {
       return {
         success: false,
         message: 'Failed to send test email',
+        error: error?.message || 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  async getEmailLogs(limit: number = 50, offset: number = 0) {
+    try {
+      const logs = await this.emailLogRepository.find({
+        order: { timestamp: 'DESC' },
+        take: limit,
+        skip: offset,
+      });
+
+      return {
+        success: true,
+        data: logs,
+        count: logs.length,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      this.logger.error('Failed to fetch email logs:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch email logs',
         error: error?.message || 'Unknown error',
         timestamp: new Date(),
       };
