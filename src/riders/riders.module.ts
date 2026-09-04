@@ -130,7 +130,6 @@ import { RiderLocationUpdatedHandler } from './handlers/rider-location-updated.h
     RiderLocationUpdatedHandler,
     S3Service,
     MobileSenderService,
-    MailSenderService,
     AnalyticsService,
   ],
   exports: [

@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Like } from 'typeorm';
+import { OperationalMetric } from '../entities/operational-metric.entity';
+import { SystemMetric } from '../entities/system-metric.entity';
+import { MonitoringAlert } from '../entities/monitoring-alert.entity';
 import { Rider, RiderStatus } from '../../riders/model/rider.entity';
 import { Stores } from '../../stores/model/stores.entity';
-import { MenuItem } from '../../stores/model/menu-item.entity';
 import { Orders } from '../../orders/model/order.entity';
 import { OrderItems } from '../../orders/model/order-items.entity';
+import { MenuItem } from '../../stores/model/menu-item.entity';
+import { MailSenderService } from '../../user-otp/mail-sender.service';
 
 export interface OperationsOverview {
   orders: {
@@ -47,9 +51,6 @@ export interface LiveMapData {
     dropoffLocation: { lat: number; lng: number };
   }>;
 }
-import { OperationalMetric } from '../entities/operational-metric.entity';
-import { SystemMetric } from '../entities/system-metric.entity';
-import { MonitoringAlert } from '../entities/monitoring-alert.entity';
 
 @Injectable()
 export class DashboardService {
@@ -72,6 +73,7 @@ export class DashboardService {
     private orderItemsRepository: Repository<OrderItems>,
     @InjectRepository(MenuItem)
     private menuItemsRepository: Repository<MenuItem>,
+    private mailSenderService: MailSenderService,
   ) {}
 
   async getOperationsOverview(): Promise<OperationsOverview> {
@@ -328,6 +330,34 @@ export class DashboardService {
     }
 
     return health;
+  }
+
+  async sendTestEmail(email: string) {
+    try {
+      const result = await this.mailSenderService.sendMail({
+        recipient: email,
+        subject: 'Cushy Access Email Monitoring Test',
+        content: {
+          otp: '123456',
+          name: 'Test User',
+          currentYear: new Date().getFullYear(),
+        },
+        template: 'otp',
+      });
+
+      return {
+        success: true,
+        message: 'Test email sent successfully',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to send test email',
+        error: error?.message || 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
   }
 
   async getLiveMapData(): Promise<LiveMapData> {

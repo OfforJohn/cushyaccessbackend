@@ -38,6 +38,7 @@ import { CushyAiProviderModule } from 'src/cushy-ai/cushy-ai-provider.module';
 import { HealthAiTriageService } from './services/health-ai-triage.service';
 import { JwtService } from '@nestjs/jwt';
 import { DataSource } from 'typeorm';
+import { UserOtpModule } from 'src/user-otp/user-otp.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { DataSource } from 'typeorm';
     WalletModule,
     CqrsModule,
     CushyAiProviderModule,
+    UserOtpModule,
     TypeOrmModule.forFeature([
       ProfessionDetails,
       ConsultationSchedule,
@@ -65,8 +67,6 @@ import { DataSource } from 'typeorm';
     CompleteAppointmentUsecase,
     S3Service,
     AppointmentReminderService,
-    MailSenderService,
-    MobileSenderService,
     EightEightTokenService,
     PushNotificationEvent,
     FindDoctorUseCase,

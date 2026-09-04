@@ -69,6 +69,11 @@ export class MonitoringController {
     return this.dashboardService.getEmailMetrics();
   }
 
+  @Post('email/test')
+  async sendTestEmail(@Body() body: { email: string }) {
+    return this.dashboardService.sendTestEmail(body.email);
+  }
+
   @Get('operations/live-map')
   async getLiveMapData(): Promise<LiveMapData> {
     return this.dashboardService.getLiveMapData();

@@ -28,7 +28,6 @@ import { Users } from 'src/users/model/users.entity';
 import { Stores } from 'src/stores/model/stores.entity';
 import { MenuItem } from 'src/stores/model/menu-item.entity';
 import { AddToCartUseCase } from './usecases/add-to-cart.usecase';
-import { MailSenderService } from 'src/user-otp/mail-sender.service';
 import { AppInitService } from './services/app-init.service';
 import { PromoCodeModule } from '../promo-code/promo-code.module';
 import { CalculateLogisticDeliveryUseCase } from './usecases/calculate-logistic-delivery-charges.usecase';
@@ -40,7 +39,6 @@ import { GoogleMapsService } from 'src/utils/google-maps.service';
 import { VendorAcceptRejectOrderUseCase } from './usecases/vendor-accept-reject-order.usecase';
 import { Wallets } from 'src/wallet/model/wallet.entity';
 import { UserCancelOrderUseCase } from './usecases/user-cancel-order.usecase';
-import { MobileSenderService } from 'src/user-otp/mobile-sender.service';
 import { CqrsModule } from '@nestjs/cqrs';
 import { AnalyticsService } from 'src/analytics/analytics.service';
 import { UserActivity } from 'src/analytics/entities/user-activity.entity';
@@ -57,6 +55,7 @@ import { RidersModule } from 'src/riders/riders.module';
 import { RedisCacheModule } from 'src/redis-cache/redis-cache.module';
 import { RiderOrderDispatchService } from './services/rider-order-dispatch.service';
 import { OrderStatusChangedHandler } from './handlers/order-status-changed.handler';
+import { UserOtpModule } from 'src/user-otp/user-otp.module';
 
 @Module({
   imports: [
@@ -68,6 +67,7 @@ import { OrderStatusChangedHandler } from './handlers/order-status-changed.handl
     CqrsModule,
     forwardRef(() => RidersModule),
     RedisCacheModule,
+    UserOtpModule,
     TypeOrmModule.forFeature([
       Orders,
       OrderItems,
@@ -104,14 +104,12 @@ import { OrderStatusChangedHandler } from './handlers/order-status-changed.handl
     GetOrdersUseCase,
     CartService,
     AddToCartUseCase,
-    MailSenderService,
     AppInitService,
     UpdateOrderTrackingUseCase,
     UserLocationsService,
     GoogleMapsService,
     VendorAcceptRejectOrderUseCase,
     UserCancelOrderUseCase,
-    MobileSenderService,
     AnalyticsService,
     AICalculateDeliveryUseCase,
     AIQCommerceOrderUseCase,
