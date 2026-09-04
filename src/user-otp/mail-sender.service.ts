@@ -26,7 +26,18 @@ export class MailSenderService {
     this.configService = new ConfigService();
     const defaultClient = SibApiV3Sdk.ApiClient.instance;
     const apiKey = defaultClient.authentications['api-key'];
-    apiKey.apiKey = this.configService.get<string>('BREVO_API_KEY') || process.env.BREVO_API_KEY;
+    
+    // Clean and validate the API key
+    const rawApiKey = this.configService.get<string>('BREVO_API_KEY') || process.env.BREVO_API_KEY;
+    const cleanedApiKey = rawApiKey?.trim();
+    
+    if (!cleanedApiKey) {
+      this.logger.error('BREVO_API_KEY is not configured');
+    } else {
+      this.logger.debug(`Brevo API key configured (length: ${cleanedApiKey.length})`);
+      apiKey.apiKey = cleanedApiKey;
+    }
+    
     this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     this.registerHandlebarsHelpers();
   }
