@@ -236,22 +236,27 @@ export class DashboardService {
             where: { menuItemId: In(menuItemIds) },
           });
 
-          // Calculate total revenue
+          // Calculate total revenue and items sold
           const totalRevenue = orderItems.reduce(
             (sum, item) => sum + Number(item.price) * item.quantity,
             0,
           );
 
+          const itemsSold = orderItems.reduce(
+            (sum, item) => sum + item.quantity,
+            0,
+          );
+
           return {
-            categoryId: category.id,
-            categoryName: category.name,
-            totalRevenue,
-            orderCount: orderItems.length,
+            category: category.name,
+            revenue: totalRevenue,
+            itemsSold,
+            uniqueProducts: menuItems.length,
           };
         }),
       );
 
-      return revenueByCategory.filter((cat) => cat.totalRevenue > 0);
+      return revenueByCategory.filter((cat) => cat.revenue > 0);
     } catch (error) {
       this.logger.error('Failed to fetch product revenue by category:', error);
       return [];
