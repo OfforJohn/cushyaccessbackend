@@ -6,7 +6,7 @@ import { JwtAuthGuard } from '../../auth/service/jwt-auth.guard';
 import { Permit } from '../../auth/service/roles.decorator';
 import { UserRoles } from '../../users/model/user-roles.enum';
 
-@Controller('monitoring/mobile')
+@Controller('api/v1/monitoring/mobile')
 @UseGuards(JwtAuthGuard)
 export class MobileController {
   constructor(

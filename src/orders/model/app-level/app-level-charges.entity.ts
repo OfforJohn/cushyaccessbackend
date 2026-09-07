@@ -12,10 +12,10 @@ export class AppLevelCharges {
   @PrimaryColumn()
   id: string;
 
-  @Column()
+  @Column({ nullable: true, default: 200 })
   deliveryFeePerKmForBike: number = 200; // distance
 
-  @Column()
+  @Column({ nullable: true, default: 600 })
   deliveryFeePerKmForVan: number = 600; // distance
 
   @OneToMany(() => Charges, (charges) => charges.appLevelCharges)

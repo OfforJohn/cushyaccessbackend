@@ -26,6 +26,9 @@ import { Stores } from '../stores/model/stores.entity';
 import { MenuItem } from '../stores/model/menu-item.entity';
 import { OrderItems } from '../orders/model/order-items.entity';
 import { UserOtpModule } from '../user-otp/user-otp.module';
+import { OrderModule } from '../orders/orders.module';
+import { RidersModule } from '../riders/riders.module';
+import { StoresModule } from '../stores/stores.module';
 
 @Module({
   imports: [
@@ -50,6 +53,9 @@ import { UserOtpModule } from '../user-otp/user-otp.module';
     UsersModule,
     AuthModule,
     UserOtpModule,
+    OrderModule,
+    RidersModule,
+    StoresModule,
   ],
   controllers: [MonitoringController, MobileController],
   providers: [
