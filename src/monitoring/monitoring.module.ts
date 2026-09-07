@@ -29,6 +29,7 @@ import { UserOtpModule } from '../user-otp/user-otp.module';
 import { OrderModule } from '../orders/orders.module';
 import { RidersModule } from '../riders/riders.module';
 import { StoresModule } from '../stores/stores.module';
+import { MailSenderService } from '../user-otp/mail-sender.service';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { StoresModule } from '../stores/stores.module';
     IncidentService,
     OrderEventHandler,
     RiderEventHandler,
+    MailSenderService,
   ],
   exports: [
     MetricsCollectionService,

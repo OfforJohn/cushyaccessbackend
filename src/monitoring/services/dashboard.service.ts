@@ -5,6 +5,7 @@ import { OperationalMetric } from '../entities/operational-metric.entity';
 import { SystemMetric } from '../entities/system-metric.entity';
 import { MonitoringAlert } from '../entities/monitoring-alert.entity';
 import { EmailLog, EmailStatus } from '../entities/email-log.entity';
+import { MailSenderService } from '../../user-otp/mail-sender.service';
 
 export interface OperationsOverview {
   orders: {
@@ -60,6 +61,7 @@ export class DashboardService {
     private alertRepository: Repository<MonitoringAlert>,
     @InjectRepository(EmailLog)
     private emailLogRepository: Repository<EmailLog>,
+    private mailSenderService: MailSenderService,
   ) {}
 
   async getOperationsOverview(): Promise<OperationsOverview> {
@@ -276,29 +278,30 @@ export class DashboardService {
 
   async sendTestEmail(email: string) {
     try {
-      // Create email log entry
-      const emailLog = this.emailLogRepository.create({
+      const response = await this.mailSenderService.sendMail({
         recipient: email,
         subject: 'Cushy Access Email Monitoring Test',
         template: 'otp',
+        content: {
+          email,
+          timestamp: new Date().toISOString(),
+        },
       });
 
-      await this.emailLogRepository.save(emailLog);
-
-      // Simulate email sending
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Update log with success
-      emailLog.status = EmailStatus.SENT;
-      emailLog.deliveryTime = 500;
-      emailLog.messageId = `<${Date.now()}@cushyaccess.com>`;
-      await this.emailLogRepository.save(emailLog);
-
-      return {
-        success: true,
-        message: 'Test email sent successfully',
-        timestamp: new Date(),
-      };
+      if (response) {
+        return {
+          success: true,
+          message: 'Test email sent successfully',
+          timestamp: new Date(),
+        };
+      } else {
+        return {
+          success: false,
+          message: 'Failed to send test email',
+          error: 'Email service returned null response',
+          timestamp: new Date(),
+        };
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return {
