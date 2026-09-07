@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Like } from 'typeorm';
+import { Repository, Between, Like, In } from 'typeorm';
 import { OperationalMetric } from '../entities/operational-metric.entity';
 import { SystemMetric } from '../entities/system-metric.entity';
 import { MonitoringAlert } from '../entities/monitoring-alert.entity';
 import { EmailLog, EmailStatus } from '../entities/email-log.entity';
 import { MailSenderService } from '../../user-otp/mail-sender.service';
+import { OrderItems } from '../../orders/model/order-items.entity';
+import { MenuItem } from '../../stores/model/menu-item.entity';
+import { MenuCategory } from '../../stores/model/menu-category.entity';
 
 export interface OperationsOverview {
   orders: {
@@ -61,6 +64,12 @@ export class DashboardService {
     private alertRepository: Repository<MonitoringAlert>,
     @InjectRepository(EmailLog)
     private emailLogRepository: Repository<EmailLog>,
+    @InjectRepository(OrderItems)
+    private orderItemsRepository: Repository<OrderItems>,
+    @InjectRepository(MenuItem)
+    private menuItemRepository: Repository<MenuItem>,
+    @InjectRepository(MenuCategory)
+    private menuCategoryRepository: Repository<MenuCategory>,
     private mailSenderService: MailSenderService,
   ) {}
 
@@ -207,8 +216,46 @@ export class DashboardService {
   }
 
   async getProductRevenueByCategory() {
-    // Placeholder implementation - would need OrdersModule dependency
-    return [];
+    try {
+      // Get all menu categories
+      const categories = await this.menuCategoryRepository.find({
+        relations: ['menuItems'],
+      });
+
+      const revenueByCategory = await Promise.all(
+        categories.map(async (category) => {
+          // Get all menu items in this category
+          const menuItems = await this.menuItemRepository.find({
+            where: { menuCategoryId: category.id },
+          });
+
+          const menuItemIds = menuItems.map((item) => item.id);
+
+          // Get all order items for these menu items
+          const orderItems = await this.orderItemsRepository.find({
+            where: { menuItemId: In(menuItemIds) },
+          });
+
+          // Calculate total revenue
+          const totalRevenue = orderItems.reduce(
+            (sum, item) => sum + Number(item.price) * item.quantity,
+            0,
+          );
+
+          return {
+            categoryId: category.id,
+            categoryName: category.name,
+            totalRevenue,
+            orderCount: orderItems.length,
+          };
+        }),
+      );
+
+      return revenueByCategory.filter((cat) => cat.totalRevenue > 0);
+    } catch (error) {
+      this.logger.error('Failed to fetch product revenue by category:', error);
+      return [];
+    }
   }
 
   async getEmailMetrics() {

@@ -25,6 +25,7 @@ import { Rider } from '../riders/model/rider.entity';
 import { Stores } from '../stores/model/stores.entity';
 import { MenuItem } from '../stores/model/menu-item.entity';
 import { OrderItems } from '../orders/model/order-items.entity';
+import { MenuCategory } from '../stores/model/menu-category.entity';
 import { UserOtpModule } from '../user-otp/user-otp.module';
 import { OrderModule } from '../orders/orders.module';
 import { RidersModule } from '../riders/riders.module';
@@ -44,6 +45,7 @@ import { MailSenderService } from '../user-otp/mail-sender.service';
       Stores,
       MenuItem,
       OrderItems,
+      MenuCategory,
     ]),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
