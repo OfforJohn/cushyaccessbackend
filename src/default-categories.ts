@@ -34,4 +34,4 @@ export const defaultCategories = [
     color: '#FFF6D6',
     isAvailable: true,
   },
-];
+];//vfvvfvf
