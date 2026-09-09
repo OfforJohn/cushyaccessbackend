@@ -23,6 +23,7 @@ export enum CouponStatus {
 export enum CouponSource {
   ADMIN = 'ADMIN',
   BIRTHDAY = 'BIRTHDAY',
+  REFERRAL = 'REFERRAL',
 }
 
 @Entity('coupons')
