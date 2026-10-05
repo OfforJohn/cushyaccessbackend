@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   ServiceUnavailableException,
+  Optional,
 } from '@nestjs/common';
 import { CommonService } from '../common/common.service';
 import { StandardResponse } from '../common/module/standard-response';
@@ -24,6 +25,7 @@ import {
   planAiContext,
 } from './cushy-ai-context-planner';
 import { OrdersService } from '../orders/services/orders.service';
+import { AiUsageTrackingService } from './services/ai-usage-tracking.service';
 
 const MAX_TOOL_ROUNDS = 5;
 const MAX_USER_PROMPT_LENGTH = 2_000;
@@ -87,6 +89,7 @@ export class CushyAIService {
     private readonly tools: CushyAiToolsService,
     private readonly ordersService: OrdersService,
     @Inject(AI_PROVIDER) private readonly provider: AiProvider,
+    @Optional() private readonly usageTrackingService?: AiUsageTrackingService,
   ) {}
 
   async recordOrderResult(
@@ -252,6 +255,8 @@ export class CushyAIService {
       let finalText = '';
       let toolRounds = 0;
       let requiresFinalSynthesis = false;
+      const startTime = Date.now();
+      
       while (toolRounds <= MAX_TOOL_ROUNDS) {
         let generated;
         try {
@@ -268,6 +273,25 @@ export class CushyAIService {
               error instanceof Error ? error.message : String(error)
             }`,
           );
+          
+          // Record error in usage tracking
+          if (this.usageTrackingService) {
+            await this.usageTrackingService.recordUsage({
+              provider: this.provider.name,
+              requestCount: 1,
+              tokenCount: 0,
+              errorCount: 1,
+              cost: 0,
+              responseTime: Date.now() - startTime,
+              userId: user.id,
+              chatId: chat.id,
+              requestMessage: prompt,
+              responseMessage: null,
+              isTest: false,
+              metadata: { errorType: error instanceof Error ? error.message : String(error) },
+            }).catch(err => this.logger.warn(`Failed to record usage error: ${err.message}`));
+          }
+          
           throw new ServiceUnavailableException(
             'CUSHY_AI_TEMPORARILY_UNAVAILABLE',
           );
@@ -512,6 +536,27 @@ export class CushyAIService {
         currentUserMessage.id,
         { provider: this.provider.name },
       );
+
+      // Record successful usage in tracking
+      if (this.usageTrackingService) {
+        const estimatedTokens = Math.ceil((prompt.length + finalText.length) / 4);
+        const cost = this.calculateProviderCost(this.provider.name, estimatedTokens);
+        
+        await this.usageTrackingService.recordUsage({
+          provider: this.provider.name,
+          requestCount: 1,
+          tokenCount: estimatedTokens,
+          errorCount: 0,
+          cost,
+          responseTime: Date.now() - startTime,
+          userId: user.id,
+          chatId: chat.id,
+          requestMessage: prompt,
+          responseMessage: finalText,
+          isTest: false,
+        }).catch(err => this.logger.warn(`Failed to record usage: ${err.message}`));
+      }
+
       if (!options.clientMessageId) {
         // Compatibility for older OTA builds must not turn an already saved
         // structured reply into a failed request if only the legacy table is
@@ -901,5 +946,26 @@ export class CushyAIService {
       if (existingIndex >= 0) target.splice(existingIndex, 1);
       target.push(component);
     }
+  }
+
+  private calculateProviderCost(provider: string, tokens: number): number {
+    if (provider.includes('gemini') || provider === 'google') {
+      // Gemini Flash pricing (approximate)
+      const inputCostPerMillion = 0.075;
+      const outputCostPerMillion = 0.3;
+      
+      // Assuming 50% input, 50% output tokens
+      const inputTokens = tokens * 0.5;
+      const outputTokens = tokens * 0.5;
+      
+      return (inputTokens / 1000000) * inputCostPerMillion + 
+             (outputTokens / 1000000) * outputCostPerMillion;
+    } else if (provider.includes('bedrock') || provider === 'aws') {
+      // Bedrock pricing varies by model - using approximate pricing
+      const costPerMillionTokens = 0.001;
+      return (tokens / 1000000) * costPerMillionTokens;
+    }
+    
+    return 0;
   }
 }

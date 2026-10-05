@@ -16,6 +16,11 @@ import { CushyAiToolsService } from './cushy-ai-tools.service';
 import { AiKnowledgeArticle } from './model/entity/ai-knowledge-article.entity';
 import { CushyAiKnowledgeService } from './cushy-ai-knowledge.service';
 import { CushyAiProviderModule } from './cushy-ai-provider.module';
+import { AiDiagnosticService } from './ai-diagnostic.service';
+import { AiDiagnosticController } from './ai-diagnostic.controller';
+import { AiUsageMetric } from './model/entity/ai-usage-metric.entity';
+import { AiUsageTrackingService } from './services/ai-usage-tracking.service';
+import { AiTestingService } from './services/ai-testing.service';
 
 @Module({
   imports: [
@@ -31,6 +36,7 @@ import { CushyAiProviderModule } from './cushy-ai-provider.module';
       AiChatMessage,
       AiKnowledgeArticle,
       Orders,
+      AiUsageMetric,
     ]),
   ],
   providers: [
@@ -38,8 +44,11 @@ import { CushyAiProviderModule } from './cushy-ai-provider.module';
     ConversationService,
     CushyAiToolsService,
     CushyAiKnowledgeService,
+    AiDiagnosticService,
+    AiUsageTrackingService,
+    AiTestingService,
   ],
-  controllers: [CushyAIController],
+  controllers: [CushyAIController, AiDiagnosticController],
   exports: [CushyAIService, ConversationService],
 })
 export class CushyAIModule {}

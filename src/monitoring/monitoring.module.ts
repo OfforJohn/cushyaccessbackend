@@ -10,8 +10,10 @@ import { DashboardService } from './services/dashboard.service';
 import { IncidentService } from './services/incident.service';
 import { MonitoringController } from './controllers/monitoring.controller';
 import { MobileController } from './controllers/mobile.controller';
+import { ExternalDiagnosticsController } from './controllers/external-diagnostics.controller';
 import { OrderEventHandler } from './handlers/order-event.handler';
 import { RiderEventHandler } from './handlers/rider-event.handler';
+import { ExternalDiagnosticsService } from './services/external-diagnostics.service';
 import { MonitoringAlert } from './entities/monitoring-alert.entity';
 import { SystemMetric } from './entities/system-metric.entity';
 import { OperationalMetric } from './entities/operational-metric.entity';
@@ -60,7 +62,7 @@ import { MailSenderService } from '../user-otp/mail-sender.service';
     RidersModule,
     StoresModule,
   ],
-  controllers: [MonitoringController, MobileController],
+  controllers: [MonitoringController, MobileController, ExternalDiagnosticsController],
   providers: [
     MonitoringGateway,
     MetricsCollectionService,
@@ -70,6 +72,7 @@ import { MailSenderService } from '../user-otp/mail-sender.service';
     OrderEventHandler,
     RiderEventHandler,
     MailSenderService,
+    ExternalDiagnosticsService,
   ],
   exports: [
     MetricsCollectionService,
