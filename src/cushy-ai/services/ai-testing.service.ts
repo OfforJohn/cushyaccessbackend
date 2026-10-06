@@ -3,11 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime';
 import { AiUsageTrackingService } from './ai-usage-tracking.service';
+import { ConversationService } from '../conversation.service';
+import { v4 as uuidv4 } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AiChat } from '../model/entity/ai-chat.entity';
+import { AiChatMessage, AiChatMessageRole } from '../model/entity/ai-chat-message.entity';
 
 export interface TestAiRequest {
   provider: 'gemini' | 'bedrock';
   message: string;
   userId?: string;
+  chatId?: string;
 }
 
 export interface TestAiResponse {
@@ -30,6 +37,11 @@ export class AiTestingService {
   constructor(
     private readonly config: ConfigService,
     private readonly usageTrackingService: AiUsageTrackingService,
+    private readonly conversationService: ConversationService,
+    @InjectRepository(AiChat)
+    private readonly chatRepo: Repository<AiChat>,
+    @InjectRepository(AiChatMessage)
+    private readonly messageRepo: Repository<AiChatMessage>,
   ) {}
 
   async testProvider(request: TestAiRequest): Promise<TestAiResponse> {
@@ -39,12 +51,21 @@ export class AiTestingService {
     let error = null;
 
     try {
+      let history: any[] = [];
+      if (request.chatId) {
+        const messages = await this.conversationService.getModelHistory(request.chatId);
+        history = messages.map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: msg.content }]
+        }));
+      }
+
       if (request.provider === 'gemini') {
-        const result = await this.testGemini(request.message);
+        const result = await this.testGemini(request.message, history);
         response = result.response;
         tokens = result.tokens;
       } else if (request.provider === 'bedrock') {
-        const result = await this.testBedrock(request.message);
+        const result = await this.testBedrock(request.message, history);
         response = result.response;
         tokens = result.tokens;
       } else {
@@ -114,7 +135,7 @@ export class AiTestingService {
     }
   }
 
-  private async testGemini(message: string): Promise<{ response: string; tokens: number }> {
+  private async testGemini(message: string, history: any[] = []): Promise<{ response: string; tokens: number }> {
     const apiKey = this.config.get<string>('CUSHY_AI_GEMINI_API_KEY');
     const model = this.config.get<string>('CUSHY_AI_GEMINI_MODEL') || 'gemini-3.5-flash';
 
@@ -124,15 +145,17 @@ export class AiTestingService {
 
     try {
       const client = new GoogleGenAI({ apiKey });
+      const contents = [...history, { role: 'user', parts: [{ text: message }] }];
       const result = await client.models.generateContent({
         model,
-        contents: [{ role: 'user', parts: [{ text: message }] }],
+        contents,
       }) as any;
 
       const response = result.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
 
       // Estimate tokens (rough estimate: 4 chars per token)
-      const estimatedTokens = Math.ceil((message.length + response.length) / 4);
+      const historyLength = history.reduce((sum, msg) => sum + JSON.stringify(msg).length, 0);
+      const estimatedTokens = Math.ceil((historyLength + message.length + response.length) / 4);
 
       return { response, tokens: estimatedTokens };
     } catch (error) {
@@ -140,7 +163,7 @@ export class AiTestingService {
     }
   }
 
-  private async testBedrock(message: string): Promise<{ response: string; tokens: number }> {
+  private async testBedrock(message: string, history: any[] = []): Promise<{ response: string; tokens: number }> {
     const region = this.config.get<string>('AWS_REGION') || 'eu-west-1';
     const modelId = this.config.get<string>('CUSHY_AI_BEDROCK_MODEL_ID') || 'openai.gpt-oss-120b-1:0';
 
@@ -156,10 +179,12 @@ export class AiTestingService {
 
       // Simple invocation (implementation depends on actual Bedrock API)
       // For now, return a mock response since we can't easily test without credits
-      const response = `Bedrock response to: ${message} (Model: ${modelId})`;
-      
+      const historyContext = history.length > 0 ? ` (with ${history.length} previous messages)` : '';
+      const response = `Bedrock response to: ${message}${historyContext} (Model: ${modelId})`;
+
       // Estimate tokens
-      const estimatedTokens = Math.ceil((message.length + response.length) / 4);
+      const historyLength = history.reduce((sum, msg) => sum + JSON.stringify(msg).length, 0);
+      const estimatedTokens = Math.ceil((historyLength + message.length + response.length) / 4);
 
       return { response, tokens: estimatedTokens };
     } catch (error) {
@@ -186,5 +211,37 @@ export class AiTestingService {
     }
     
     return 0;
+  }
+
+  async createTestChat(title?: string, userId?: string) {
+    const testUserId = userId || 'test-user-' + uuidv4();
+    const chat = await this.chatRepo.save(
+      this.chatRepo.create({
+        userId: testUserId,
+        title: title || 'Test chat',
+        processingAt: null,
+      }),
+    );
+    return {
+      success: true,
+      chatId: chat.id,
+      userId: testUserId,
+      title: chat.title,
+    };
+  }
+
+  async addMessageToChat(chatId: string, role: 'user' | 'assistant', content: string) {
+    const message = await this.messageRepo.save(
+      this.messageRepo.create({
+        chatId,
+        role: role === 'assistant' ? AiChatMessageRole.ASSISTANT : AiChatMessageRole.USER,
+        content,
+      }),
+    );
+    await this.chatRepo.update(chatId, { updatedAt: new Date() });
+    return {
+      success: true,
+      messageId: message.id,
+    };
   }
 }

@@ -62,11 +62,22 @@ export class AiDiagnosticController {
   }
 
   @Post('test')
-  async testProvider(@Body() body: { provider: 'gemini' | 'bedrock'; message: string }) {
+  async testProvider(@Body() body: { provider: 'gemini' | 'bedrock'; message: string; chatId?: string }) {
     return this.aiTestingService.testProvider({
       provider: body.provider,
       message: body.message,
+      chatId: body.chatId,
     });
+  }
+
+  @Post('test/create-chat')
+  async createTestChat(@Body() body: { title?: string; userId?: string }) {
+    return this.aiTestingService.createTestChat(body.title, body.userId);
+  }
+
+  @Post('test/add-message')
+  async addMessageToChat(@Body() body: { chatId: string; role: 'user' | 'assistant'; content: string }) {
+    return this.aiTestingService.addMessageToChat(body.chatId, body.role, body.content);
   }
 
   @Get('test/history')
