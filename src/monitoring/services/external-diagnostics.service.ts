@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import axios from 'axios';
+import { MenuItem } from '../../stores/model/menu-item.entity';
 import { S3Client, ListBucketsCommand, HeadBucketCommand } from '@aws-sdk/client-s3';
 import { createClient } from 'redis';
 
@@ -34,6 +35,73 @@ export class ExternalDiagnosticsService {
     private readonly config: ConfigService,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
+
+  async getApplicationHealth() {
+    const [products, email] = await Promise.all([
+      this.checkProductsAvailability(),
+      this.checkBrevoEmail(),
+    ]);
+    const ai = this.checkAiConfiguration();
+    const emailStatus =
+      email.status === 'healthy'
+        ? 'up'
+        : email.status === 'unhealthy'
+          ? 'down'
+          : 'not_configured';
+    const services = {
+      products,
+      email: { status: emailStatus, responseTime: email.responseTime },
+      ai,
+    };
+    const statuses = Object.values(services).map((service) => service.status);
+    const status = statuses.includes('down')
+      ? 'unhealthy'
+      : statuses.every((serviceStatus) => serviceStatus === 'up')
+        ? 'healthy'
+        : 'degraded';
+
+    return { status, timestamp: new Date().toISOString(), services };
+  }
+
+  private async checkProductsAvailability(): Promise<{
+    status: 'up' | 'down';
+    responseTime: number;
+  }> {
+    const startTime = Date.now();
+    try {
+      await this.dataSource
+        .getRepository(MenuItem)
+        .createQueryBuilder('product')
+        .select('product.id')
+        .take(1)
+        .getRawMany();
+      return { status: 'up', responseTime: Date.now() - startTime };
+    } catch {
+      return { status: 'down', responseTime: Date.now() - startTime };
+    }
+  }
+
+  private checkAiConfiguration(): {
+    status: 'up' | 'not_configured' | 'down';
+    provider?: string;
+    check: 'configuration_only';
+  } {
+    const provider = (this.config.get<string>('CUSHY_AI_PROVIDER') || 'bedrock')
+      .trim()
+      .toLowerCase();
+
+    if (provider === 'gemini') {
+      return this.config.get<string>('CUSHY_AI_GEMINI_API_KEY')
+        ? { status: 'up', provider, check: 'configuration_only' }
+        : { status: 'not_configured', provider, check: 'configuration_only' };
+    }
+
+    if (provider === 'bedrock') {
+      return { status: 'up', provider, check: 'configuration_only' };
+    }
+
+    return { status: 'down', provider, check: 'configuration_only' };
+  }
 
   async getAllDiagnostics(): Promise<DiagnosticSummary> {
     this.logger.log('Running comprehensive external services diagnostics...');
@@ -219,7 +287,7 @@ export class ExternalDiagnosticsService {
             responseTime,
             metadata: {
               currency: response.data.data[0]?.currency,
-              balance: response.data.data[0]?.balance,
+              balance: response.data.data[0]?.balance / 100,
             },
             lastChecked: new Date().toISOString(),
           };
@@ -461,7 +529,9 @@ export class ExternalDiagnosticsService {
     const startTime = Date.now();
     
     try {
-      const apiKey = this.config.get<string>('BREVO_API_KEY');
+      const apiKey = this.config.get<string>('BREVO_API_KEY')?.trim();
+      const mailFrom = this.config.get<string>('MAIL_FROM')?.trim();
+      const mailUsername = this.config.get<string>('MAIL_USERNAME')?.trim();
       
       if (!apiKey) {
         return {
@@ -472,25 +542,38 @@ export class ExternalDiagnosticsService {
         };
       }
 
+      if (!mailFrom || !mailUsername) {
+        return {
+          service: 'brevo_email',
+          status: 'not_configured',
+          message: 'Email sender settings are not configured',
+          lastChecked: new Date().toISOString(),
+        };
+      }
+
       try {
-        // Test Brevo API with account info
-        const response = await axios.get('https://api.brevo.com/v3/account', {
-          headers: {
-            'api-key': apiKey,
+        // Use a read-only transactional-email API call. Do not send an email
+        // from a health check because this endpoint may be polled repeatedly.
+        const response = await axios.get(
+          'https://api.brevo.com/v3/smtp/templates',
+          {
+            headers: {
+              'api-key': apiKey,
+            },
+            params: { limit: 1 },
+            timeout: 10000,
           },
-          timeout: 10000,
-        });
+        );
 
         const responseTime = Date.now() - startTime;
 
         return {
           service: 'brevo_email',
           status: 'healthy',
-          message: 'Brevo API accessible',
+          message: 'Brevo transactional email API accessible',
           responseTime,
           metadata: {
-            email: response.data.email,
-            planLevel: response.data.planLevel,
+            templatesAvailable: Number(response.data.count) || 0,
           },
           lastChecked: new Date().toISOString(),
         };

@@ -55,8 +55,8 @@ export class AiTestingService {
       if (request.chatId) {
         const messages = await this.conversationService.getModelHistory(request.chatId);
         history = messages.map(msg => ({
-          role: msg.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: msg.content }]
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: [{ type: 'text', text: msg.content }]
         }));
       }
 
@@ -145,7 +145,18 @@ export class AiTestingService {
 
     try {
       const client = new GoogleGenAI({ apiKey });
-      const contents = [...history, { role: 'user', parts: [{ text: message }] }];
+      
+      // Format messages the same way as the main service
+      const allMessages = [
+        ...history,
+        { role: 'user', content: [{ type: 'text', text: message }] }
+      ];
+      
+      const contents = allMessages.map((msg) => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: msg.content.map((block: any) => ({ text: block.text }))
+      }));
+      
       const result = await client.models.generateContent({
         model,
         contents,

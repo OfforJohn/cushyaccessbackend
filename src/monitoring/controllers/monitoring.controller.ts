@@ -11,6 +11,7 @@ import { AdminRole } from '../../users/model/admin-roles.enum';
 import { Permit } from '../../auth/service/roles.decorator';
 import { UserRoles } from '../../users/model/user-roles.enum';
 import { Public } from '../../auth/service/public.decorator';
+import { ExternalDiagnosticsService } from '../services/external-diagnostics.service';
 
 @Controller('monitoring')
 @Public()
@@ -20,7 +21,13 @@ export class MonitoringController {
     private readonly alertService: AlertService,
     private readonly incidentService: IncidentService,
     private readonly metricsCollectionService: MetricsCollectionService,
+    private readonly externalDiagnosticsService: ExternalDiagnosticsService,
   ) {}
+
+  @Get('health')
+  async getApplicationHealth() {
+    return this.externalDiagnosticsService.getApplicationHealth();
+  }
 
   // Operations Dashboard Endpoints
   @Get('operations/overview')
