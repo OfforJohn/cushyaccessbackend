@@ -332,11 +332,20 @@ export class DashboardService {
     try {
       const response = await this.mailSenderService.sendMail({
         recipient: email,
-        subject: 'Cushy Access Email Monitoring Test',
-        template: 'otp',
+        subject: '[TEST] Cushy Access monitoring email',
+        template: 'monitoring-alert',
         content: {
-          email,
-          timestamp: new Date().toISOString(),
+          alertId: `TEST-${Date.now()}`,
+          type: 'EMAIL_DELIVERY_TEST',
+          severity: 'INFO',
+          status: 'TEST',
+          message:
+            'This test confirms that the backend can send a monitoring email through Brevo.',
+          currentValue: 'Brevo accepted the email request',
+          thresholdValue: 'Not applicable for a test',
+          createdAt: new Date().toISOString(),
+          recipient: email,
+          isTest: true,
         },
       });
 
