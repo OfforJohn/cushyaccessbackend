@@ -52,6 +52,8 @@ This backend is built with [**NestJS**](https://nestjs.com/) and powers core fea
    - Twilio credentials
    - AWS S3 credentials
 
+  Monitoring alert emails use the existing Brevo sender. Configure `BREVO_API_KEY`, `MAIL_FROM`, and `MAIL_USERNAME`, then set `MONITORING_ALERT_EMAIL` to the destination address. The backend sends one email when a new monitoring alert is created; repeated updates to that active alert do not generate additional emails. Keep these values in the deployment environment or `.env` file, not in source control.
+
 3. **Run the development server**
 
    ```bash

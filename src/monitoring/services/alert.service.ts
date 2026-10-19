@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -10,6 +11,7 @@ import { OperationalMetric } from '../entities/operational-metric.entity';
 import { SystemMetric } from '../entities/system-metric.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MonitoringGateway } from '../gateways/monitoring.gateway';
+import { MailSenderService } from '../../user-otp/mail-sender.service';
 
 @Injectable()
 export class AlertService {
@@ -33,6 +35,8 @@ export class AlertService {
     private systemMetricRepository: Repository<SystemMetric>,
     private eventEmitter: EventEmitter2,
     private monitoringGateway: MonitoringGateway,
+    private configService: ConfigService,
+    private mailSenderService: MailSenderService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -176,8 +180,48 @@ export class AlertService {
       const savedAlert = await this.alertRepository.save(alert);
       this.eventEmitter.emit('alert.created', savedAlert);
       this.monitoringGateway.broadcastAlert(savedAlert);
+      void this.sendAlertEmail(savedAlert);
       
       this.logger.warn(`Alert triggered: ${type} - ${message}`);
+    }
+  }
+
+  private async sendAlertEmail(alert: MonitoringAlert): Promise<void> {
+    const recipient = this.configService
+      .get<string>('MONITORING_ALERT_EMAIL')
+      ?.trim();
+
+    if (!recipient) {
+      this.logger.warn(
+        `Monitoring alert email skipped: MONITORING_ALERT_EMAIL is not configured (alert ${alert.id})`,
+      );
+      return;
+    }
+
+    try {
+      const result = await this.mailSenderService.sendMail({
+        recipient,
+        subject: `[${alert.severity.toUpperCase()}] Cushy Access monitoring alert: ${alert.type}`,
+        template: 'monitoring-alert',
+        content: {
+          alertId: alert.id,
+          type: alert.type,
+          severity: alert.severity,
+          status: alert.status,
+          message: alert.message,
+          thresholdValue: alert.thresholdValue,
+          currentValue: alert.currentValue,
+          createdAt: alert.createdAt?.toISOString(),
+        },
+      });
+
+      if (!result) {
+        this.logger.error(`Monitoring alert email delivery failed for ${alert.id}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Could not send monitoring alert email for ${alert.id}: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
