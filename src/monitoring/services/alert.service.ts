@@ -12,6 +12,7 @@ import { SystemMetric } from '../entities/system-metric.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MonitoringGateway } from '../gateways/monitoring.gateway';
 import { MailSenderService } from '../../user-otp/mail-sender.service';
+import { DashboardService } from './dashboard.service';
 
 @Injectable()
 export class AlertService {
@@ -37,6 +38,7 @@ export class AlertService {
     private monitoringGateway: MonitoringGateway,
     private configService: ConfigService,
     private mailSenderService: MailSenderService,
+    private dashboardService: DashboardService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -199,6 +201,8 @@ export class AlertService {
     }
 
     try {
+      const monitoringSnapshot =
+        await this.dashboardService.getMonitoringEmailSnapshot();
       const result = await this.mailSenderService.sendMail({
         recipient,
         subject: `[${alert.severity.toUpperCase()}] Cushy Access monitoring alert: ${alert.type}`,
@@ -212,6 +216,7 @@ export class AlertService {
           thresholdValue: alert.thresholdValue,
           currentValue: alert.currentValue,
           createdAt: alert.createdAt?.toISOString(),
+          ...monitoringSnapshot,
         },
       });
 

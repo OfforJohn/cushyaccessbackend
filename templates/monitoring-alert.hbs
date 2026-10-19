@@ -21,6 +21,59 @@
 								</div>
 								{{/if}}
 
+								<h2 style="margin:0 0 12px;font-size:16px;color:#172033;">Service health snapshot</h2>
+								<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:22px;border-collapse:collapse;">
+									{{#each serviceHealth}}
+									<tr>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;font-weight:bold;">{{name}}</td>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{status}}</td>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">{{details}}</td>
+									</tr>
+									{{else}}
+									<tr><td style="padding:12px;border:1px solid #e5eaf2;color:#64748b;">Service health data unavailable</td></tr>
+									{{/each}}
+								</table>
+
+								<h2 style="margin:0 0 12px;font-size:16px;color:#172033;">Today's operations</h2>
+								<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:22px;border-collapse:collapse;">
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Orders</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if operations}}{{operations.orders.totalToday}}{{else}}Unavailable{{/if}} total · {{#if operations}}{{operations.orders.completed}}{{else}}—{{/if}} completed · {{#if operations}}{{operations.orders.cancelled}}{{else}}—{{/if}} cancelled</td></tr>
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Riders online</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if operations}}{{operations.riders.online}}{{else}}Unavailable{{/if}}</td></tr>
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Active stores</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if operations}}{{operations.stores.active}}{{else}}Unavailable{{/if}}</td></tr>
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">API response / error rate</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if operations}}{{operations.system.apiResponseTime}} ms / {{operations.system.errorRate}}%{{else}}Unavailable{{/if}}</td></tr>
+								</table>
+
+								<h2 style="margin:0 0 12px;font-size:16px;color:#172033;">Product catalog and sales</h2>
+								<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:22px;border-collapse:collapse;">
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Catalog</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if products}}{{products.allTime.total}} total · {{products.allTime.available}} available · {{products.allTime.unavailable}} unavailable · {{products.allTime.discounted}} discounted{{else}}Unavailable{{/if}}</td></tr>
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Today's sales</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if products}}{{products.today.sold}} items across {{products.today.uniqueSold}} products{{else}}Unavailable{{/if}}</td></tr>
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Today's product revenue</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if products}}{{products.today.revenue}}{{else}}Unavailable{{/if}}</td></tr>
+									<tr><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">Product metrics updated</td><td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:14px;">{{#if products.lastUpdatedAt}}{{products.lastUpdatedAt}}{{else}}No recent sample{{/if}}</td></tr>
+								</table>
+
+								<h2 style="margin:0 0 12px;font-size:16px;color:#172033;">AI usage today</h2>
+								<p style="margin:0 0 10px;color:#64748b;font-size:13px;">Configured provider: {{ai.provider}} · configuration status: {{ai.status}}. Provider status is configuration-only and does not guarantee live inference availability.</p>
+								<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:22px;border-collapse:collapse;">
+									<tr>
+										<th align="left" style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:12px;">Provider</th>
+										<th align="left" style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:12px;">Requests</th>
+										<th align="left" style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:12px;">Tokens</th>
+										<th align="left" style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:12px;">Errors / rate</th>
+										<th align="left" style="padding:10px 12px;border:1px solid #e5eaf2;color:#64748b;font-size:12px;">Cost (USD)</th>
+									</tr>
+									{{#each ai.usage}}
+									<tr>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:13px;">{{provider}}</td>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:13px;">{{requests}}</td>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:13px;">{{tokens}}</td>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:13px;">{{errors}} / {{errorRate}}%</td>
+										<td style="padding:10px 12px;border:1px solid #e5eaf2;color:#172033;font-size:13px;">{{cost}}</td>
+									</tr>
+									{{else}}
+									<tr><td colspan="5" style="padding:12px;border:1px solid #e5eaf2;color:#64748b;font-size:13px;">No recorded AI usage today</td></tr>
+									{{/each}}
+								</table>
+								<p style="margin:0 0 22px;color:#94a3b8;font-size:12px;">Snapshot generated: {{snapshotAt}}</p>
+
 								<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:22px;background:#f8fafc;border:1px solid #e5eaf2;border-radius:8px;">
 									<tr>
 										<td style="padding:18px 20px;">

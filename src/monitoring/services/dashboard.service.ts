@@ -9,6 +9,8 @@ import { MailSenderService } from '../../user-otp/mail-sender.service';
 import { OrderItems } from '../../orders/model/order-items.entity';
 import { MenuItem } from '../../stores/model/menu-item.entity';
 import { MenuCategory } from '../../stores/model/menu-category.entity';
+import { AiUsageMetric } from '../../cushy-ai/model/entity/ai-usage-metric.entity';
+import { ExternalDiagnosticsService } from './external-diagnostics.service';
 
 export interface OperationsOverview {
   orders: {
@@ -70,7 +72,10 @@ export class DashboardService {
     private menuItemRepository: Repository<MenuItem>,
     @InjectRepository(MenuCategory)
     private menuCategoryRepository: Repository<MenuCategory>,
+    @InjectRepository(AiUsageMetric)
+    private aiUsageMetricRepository: Repository<AiUsageMetric>,
     private mailSenderService: MailSenderService,
+    private externalDiagnosticsService: ExternalDiagnosticsService,
   ) {}
 
   async getOperationsOverview(): Promise<OperationsOverview> {
@@ -161,7 +166,115 @@ export class DashboardService {
     return {
       allTime: allTimeMetrics,
       today: todayMetrics,
+      lastUpdatedAt: recentMetrics[0]?.timestamp?.toISOString() ?? null,
     };
+  }
+
+  async getMonitoringEmailSnapshot() {
+    const [healthResult, operationsResult, productsResult, aiUsageResult] =
+      await Promise.allSettled([
+        this.externalDiagnosticsService.getApplicationHealth(),
+        this.getOperationsOverview(),
+        this.getProductMetrics(),
+        this.getAiUsageSummary(),
+      ]);
+
+    const health =
+      healthResult.status === 'fulfilled' ? healthResult.value : undefined;
+    const operations =
+      operationsResult.status === 'fulfilled' ? operationsResult.value : undefined;
+    const products =
+      productsResult.status === 'fulfilled' ? productsResult.value : undefined;
+    const aiUsage =
+      aiUsageResult.status === 'fulfilled' ? aiUsageResult.value : [];
+
+    if (healthResult.status === 'rejected') {
+      this.logger.warn(`Could not collect application health for email: ${healthResult.reason}`);
+    }
+    if (operationsResult.status === 'rejected') {
+      this.logger.warn(`Could not collect operations metrics for email: ${operationsResult.reason}`);
+    }
+    if (productsResult.status === 'rejected') {
+      this.logger.warn(`Could not collect product metrics for email: ${productsResult.reason}`);
+    }
+    if (aiUsageResult.status === 'rejected') {
+      this.logger.warn(`Could not collect AI usage metrics for email: ${aiUsageResult.reason}`);
+    }
+
+    const services = health?.services;
+    const serviceHealth = [
+      {
+        name: 'Application',
+        status: health?.status ?? 'unavailable',
+        details: 'Overall application health',
+      },
+      {
+        name: 'Product catalog',
+        status: services?.products?.status ?? 'unavailable',
+        details:
+          services?.products?.responseTime != null
+            ? `Database query: ${services.products.responseTime} ms`
+            : 'Catalog health check unavailable',
+      },
+      {
+        name: 'AI provider',
+        status: services?.ai?.status ?? 'unavailable',
+        details: `${services?.ai?.provider ?? 'Provider unknown'} (configuration check only)`,
+      },
+      {
+        name: 'Email provider',
+        status: services?.email?.status ?? 'unavailable',
+        details:
+          services?.email?.responseTime != null
+            ? `Provider check: ${services.email.responseTime} ms`
+            : 'Email health check unavailable',
+      },
+    ];
+
+    return {
+      snapshotAt: new Date().toISOString(),
+      serviceHealth,
+      operations: operations ?? null,
+      products: products ?? null,
+      ai: {
+        provider: services?.ai?.provider ?? 'unknown',
+        status: services?.ai?.status ?? 'unavailable',
+        usage: aiUsage,
+      },
+    };
+  }
+
+  private async getAiUsageSummary() {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const rows = await this.aiUsageMetricRepository
+      .createQueryBuilder('metric')
+      .select('metric.provider', 'provider')
+      .addSelect('COALESCE(SUM(metric.requestCount), 0)', 'requests')
+      .addSelect('COALESCE(SUM(metric.tokenCount), 0)', 'tokens')
+      .addSelect('COALESCE(SUM(metric.errorCount), 0)', 'errors')
+      .addSelect('COALESCE(SUM(metric.cost), 0)', 'cost')
+      .addSelect('COALESCE(AVG(metric.responseTime), 0)', 'averageResponseTime')
+      .where('metric.createdAt >= :startOfDay', { startOfDay })
+      .andWhere('metric.isTest = :isTest', { isTest: false })
+      .groupBy('metric.provider')
+      .getRawMany();
+
+    return rows.map((row) => {
+      const requests = Number(row.requests) || 0;
+      const errors = Number(row.errors) || 0;
+
+      return {
+        provider: row.provider,
+        requests,
+        tokens: Number(row.tokens) || 0,
+        errors,
+        errorRate: requests > 0 ? (errors / requests) * 100 : 0,
+        cost: Number(row.cost) || 0,
+        averageResponseTime: Number(row.averageResponseTime) || 0,
+      };
+    });
   }
 
   async getRiderMetrics() {
@@ -330,6 +443,7 @@ export class DashboardService {
 
   async sendTestEmail(email: string) {
     try {
+      const monitoringSnapshot = await this.getMonitoringEmailSnapshot();
       const response = await this.mailSenderService.sendMail({
         recipient: email,
         subject: '[TEST] Cushy Access monitoring email',
@@ -346,6 +460,7 @@ export class DashboardService {
           createdAt: new Date().toISOString(),
           recipient: email,
           isTest: true,
+          ...monitoringSnapshot,
         },
       });
 

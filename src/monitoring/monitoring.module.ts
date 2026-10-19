@@ -33,6 +33,7 @@ import { OrderModule } from '../orders/orders.module';
 import { RidersModule } from '../riders/riders.module';
 import { StoresModule } from '../stores/stores.module';
 import { MailSenderService } from '../user-otp/mail-sender.service';
+import { AiUsageMetric } from '../cushy-ai/model/entity/ai-usage-metric.entity';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { MailSenderService } from '../user-otp/mail-sender.service';
       MenuItem,
       OrderItems,
       MenuCategory,
+      AiUsageMetric,
     ]),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
