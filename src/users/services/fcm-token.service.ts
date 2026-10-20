@@ -84,6 +84,15 @@ export class FCMTokenService {
     return this.uniqueTokens(tokens);
   }
 
+  async getActiveExpoTokensByUserId(userId: string): Promise<string[]> {
+    const registrations = await this.fcmTokenRepo.find({
+      where: { userId, isDisabled: false },
+    });
+    return this.uniqueTokens(registrations).filter((token) =>
+      /^(ExponentPushToken|ExpoPushToken)\[[^\]]+\]$/.test(token),
+    );
+  }
+
   async sendPushNotification({
     title,
     subtitle,

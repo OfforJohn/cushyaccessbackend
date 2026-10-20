@@ -102,6 +102,44 @@ export class NotificationService {
     return { sent: messages.length, data: responseData };
   }
 
+  async sendToUser(
+    userId: string,
+    title: string,
+    body: string,
+    data?: Record<string, unknown>,
+  ) {
+    const tokens = await this.fcmTokenService.getActiveExpoTokensByUserId(userId);
+    if (!tokens.length) {
+      return { sent: 0, message: 'No active Expo push token is registered for this user.' };
+    }
+
+    const messages = tokens.map((token) => ({
+      to: token,
+      sound: 'default' as const,
+      title,
+      body,
+      priority: 'high' as const,
+      data: { type: 'SYSTEM', ...data },
+    }));
+
+    const response = await fetch('https://api.expo.dev/v2/push/send?useFcmV1=true', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Accept-Encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messages),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Expo push API returned HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+    return { sent: messages.length, data: result };
+  }
+
   async sendInAppNotification(notificationData: any) {
     // Only include non-null values
     const data = {

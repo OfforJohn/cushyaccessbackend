@@ -40,6 +40,20 @@ export class NotificationController {
     }
   }
 
+  @Post('send-me')
+  async sendToMe(
+    @Body() body: { title?: string; body?: string; data?: Record<string, unknown> },
+    @Req() req: Request,
+  ) {
+    const user = req.user as { id: string };
+    return this.notificationService.sendToUser(
+      user.id,
+      body.title || 'Cushy Access Nexus',
+      body.body || 'Your requested notification is ready.',
+      body.data,
+    );
+  }
+
   @Permit([UserRoles.ADMIN])
   @Get('expo-tokens')
   getTokens() {
