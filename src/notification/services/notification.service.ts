@@ -122,7 +122,7 @@ export class NotificationService {
       data: { type: 'SYSTEM', ...data },
     }));
 
-    const response = await fetch('https://api.expo.dev/v2/push/send?useFcmV1=true', {
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -132,11 +132,14 @@ export class NotificationService {
       body: JSON.stringify(messages),
     });
 
+    const result = await response.json();
     if (!response.ok) {
+      this.logger.error(
+        `Expo push API returned HTTP ${response.status}: ${JSON.stringify(result)}`,
+      );
       throw new Error(`Expo push API returned HTTP ${response.status}`);
     }
 
-    const result = await response.json();
     return { sent: messages.length, data: result };
   }
 
