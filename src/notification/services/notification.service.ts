@@ -13,6 +13,53 @@ export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
   private expoTokens = new Set<string>();
 
+  private async sendExpoMessages(messages: Array<Record<string, unknown>>) {
+    const tickets: unknown[] = [];
+    const concurrency = 10;
+
+    for (let offset = 0; offset < messages.length; offset += concurrency) {
+      const batch = messages.slice(offset, offset + concurrency);
+      const results = await Promise.all(
+        batch.map(async (message) => {
+          const response = await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(message),
+          });
+          const result = await response.json();
+
+          if (!response.ok) {
+            const errors = Array.isArray(result.errors)
+              ? result.errors.map(({ code, message: errorMessage }) => ({
+                  code,
+                  message: errorMessage,
+                }))
+              : result;
+            this.logger.error(
+              `Expo push API returned HTTP ${response.status}: ${JSON.stringify(errors)}`,
+            );
+            throw new Error(`Expo push API returned HTTP ${response.status}`);
+          }
+
+          return result.data;
+        }),
+      );
+
+      for (const result of results) {
+        if (Array.isArray(result)) {
+          tickets.push(...result);
+        } else if (result) {
+          tickets.push(result);
+        }
+      }
+    }
+
+    return tickets;
+  }
+
   async registerToken(
     userId: string,
     token: string,
@@ -92,13 +139,7 @@ export class NotificationService {
       return { sent: 0 };
     }
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messages),
-    });
-
-    const responseData = await response.json();
+    const responseData = await this.sendExpoMessages(messages);
     return { sent: messages.length, data: responseData };
   }
 
@@ -122,24 +163,7 @@ export class NotificationService {
       data: { type: 'SYSTEM', ...data },
     }));
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Accept-Encoding': 'gzip, deflate',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(messages),
-    });
-
-    const result = await response.json();
-    if (!response.ok) {
-      this.logger.error(
-        `Expo push API returned HTTP ${response.status}: ${JSON.stringify(result)}`,
-      );
-      throw new Error(`Expo push API returned HTTP ${response.status}`);
-    }
-
+    const result = await this.sendExpoMessages(messages);
     return { sent: messages.length, data: result };
   }
 
@@ -149,24 +173,18 @@ export class NotificationService {
       throw new Error('MONITORING_TEST_EXPO_TOKEN is missing or invalid');
     }
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const responseData = await this.sendExpoMessages([
+      {
         to: token,
         sound: 'default',
         title: 'Push test',
         body: 'Testing push delivery to my device',
         priority: 'high',
         data: { type: 'PUSH_TEST' },
-      }),
-    });
+      },
+    ]);
 
-    if (!response.ok) {
-      throw new Error(`Expo push API returned HTTP ${response.status}`);
-    }
-
-    return { sent: 1, data: await response.json() };
+    return { sent: 1, data: responseData };
   }
 
   async sendInAppNotification(notificationData: any) {
@@ -201,13 +219,7 @@ export class NotificationService {
       return { sent: 0 };
     }
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messages),
-    });
-
-    const responseData = await response.json();
+    const responseData = await this.sendExpoMessages(messages);
     return { sent: messages.length, data: responseData };
   }
 
@@ -236,13 +248,7 @@ export class NotificationService {
       },
     }));
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messages),
-    });
-
-    const responseData = await response.json();
+    const responseData = await this.sendExpoMessages(messages);
     return { sent: messages.length, data: responseData };
   }
 
@@ -271,13 +277,7 @@ export class NotificationService {
       },
     }));
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messages),
-    });
-
-    const responseData = await response.json();
+    const responseData = await this.sendExpoMessages(messages);
     return { sent: messages.length, data: responseData };
   }
 
@@ -305,13 +305,7 @@ export class NotificationService {
       },
     }));
 
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messages),
-    });
-
-    const responseData = await response.json();
+    const responseData = await this.sendExpoMessages(messages);
     return { sent: messages.length, data: responseData };
   }
 }
