@@ -140,6 +140,32 @@ export class NotificationService {
     return { sent: messages.length, data: result };
   }
 
+  async sendTestPushToConfiguredDevice() {
+    const token = process.env.MONITORING_TEST_EXPO_TOKEN;
+    if (!token || !/^(ExponentPushToken|ExpoPushToken)\[[^\]]+\]$/.test(token)) {
+      throw new Error('MONITORING_TEST_EXPO_TOKEN is missing or invalid');
+    }
+
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: token,
+        sound: 'default',
+        title: 'Push test',
+        body: 'Testing push delivery to my device',
+        priority: 'high',
+        data: { type: 'PUSH_TEST' },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Expo push API returned HTTP ${response.status}`);
+    }
+
+    return { sent: 1, data: await response.json() };
+  }
+
   async sendInAppNotification(notificationData: any) {
     // Only include non-null values
     const data = {

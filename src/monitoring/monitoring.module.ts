@@ -34,6 +34,7 @@ import { RidersModule } from '../riders/riders.module';
 import { StoresModule } from '../stores/stores.module';
 import { MailSenderService } from '../user-otp/mail-sender.service';
 import { AiUsageMetric } from '../cushy-ai/model/entity/ai-usage-metric.entity';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { AiUsageMetric } from '../cushy-ai/model/entity/ai-usage-metric.entity';
     OrderModule,
     RidersModule,
     StoresModule,
+    NotificationModule,
   ],
   controllers: [MonitoringController, MobileController, ExternalDiagnosticsController],
   providers: [

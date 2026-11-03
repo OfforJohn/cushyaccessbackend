@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { DashboardService, OperationsOverview, LiveMapData } from '../services/dashboard.service';
 import { AlertService } from '../services/alert.service';
 import { IncidentService } from '../services/incident.service';
@@ -12,6 +13,7 @@ import { Permit } from '../../auth/service/roles.decorator';
 import { UserRoles } from '../../users/model/user-roles.enum';
 import { Public } from '../../auth/service/public.decorator';
 import { ExternalDiagnosticsService } from '../services/external-diagnostics.service';
+import { NotificationService } from '../../notification/services/notification.service';
 
 @Controller('monitoring')
 @Public()
@@ -22,11 +24,18 @@ export class MonitoringController {
     private readonly incidentService: IncidentService,
     private readonly metricsCollectionService: MetricsCollectionService,
     private readonly externalDiagnosticsService: ExternalDiagnosticsService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   @Get('health')
   async getApplicationHealth() {
     return this.externalDiagnosticsService.getApplicationHealth();
+  }
+
+  @Post('push-test')
+  @Throttle({ default: { limit: 1, ttl: 60_000 } })
+  async sendPushTest() {
+    return this.notificationService.sendTestPushToConfiguredDevice();
   }
 
   // Operations Dashboard Endpoints
