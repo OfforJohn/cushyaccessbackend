@@ -5,6 +5,7 @@ import { IncidentService } from '../services/incident.service';
 import { JwtAuthGuard } from '../../auth/service/jwt-auth.guard';
 import { Permit } from '../../auth/service/roles.decorator';
 import { UserRoles } from '../../users/model/user-roles.enum';
+import { HealthMonitorSchedulerService } from '../services/health-monitor-scheduler.service';
 
 @Controller('api/v1/monitoring/mobile')
 @UseGuards(JwtAuthGuard)
@@ -13,7 +14,30 @@ export class MobileController {
     private readonly dashboardService: DashboardService,
     private readonly alertService: AlertService,
     private readonly incidentService: IncidentService,
+    private readonly healthMonitorScheduler: HealthMonitorSchedulerService,
   ) {}
+
+  @Get('health-monitor')
+  async getHealthMonitorSchedule(@Request() req) {
+    return this.healthMonitorScheduler.getSchedule(req.user.id);
+  }
+
+  @Put('health-monitor')
+  async updateHealthMonitorSchedule(
+    @Request() req,
+    @Body() body: { enabled: boolean; intervalMinutes: number },
+  ) {
+    return this.healthMonitorScheduler.setSchedule(
+      req.user.id,
+      body.enabled,
+      body.intervalMinutes,
+    );
+  }
+
+  @Post('health-monitor/check-now')
+  async checkHealthNow(@Request() req) {
+    return this.healthMonitorScheduler.checkNow(req.user.id);
+  }
 
   @Get('dashboard')
   @Permit([UserRoles.ADMIN])

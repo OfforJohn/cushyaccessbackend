@@ -53,6 +53,18 @@ export class Users {
   @Column({ type: 'timestamp', nullable: true })
   dateOfBirthUpdatedAt: Date | null;
 
+  @Column({ type: 'boolean', default: false })
+  dailyReminderEnabled: boolean;
+
+  @Column({ type: 'varchar', length: 5, default: '09:00' })
+  dailyReminderTime: string;
+
+  @Column({ type: 'varchar', length: 100, default: 'UTC' })
+  dailyReminderTimeZone: string;
+
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  dailyReminderLastSentDate: string | null;
+
   @Index('IDX_users_email')
   @Column()
   email: string;

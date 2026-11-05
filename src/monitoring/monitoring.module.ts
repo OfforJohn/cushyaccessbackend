@@ -35,6 +35,8 @@ import { StoresModule } from '../stores/stores.module';
 import { MailSenderService } from '../user-otp/mail-sender.service';
 import { AiUsageMetric } from '../cushy-ai/model/entity/ai-usage-metric.entity';
 import { NotificationModule } from '../notification/notification.module';
+import { HealthMonitorSchedulerService } from './services/health-monitor-scheduler.service';
+import { FirebaseScheduleStoreService } from './services/firebase-schedule-store.service';
 
 @Module({
   imports: [
@@ -77,6 +79,8 @@ import { NotificationModule } from '../notification/notification.module';
     RiderEventHandler,
     MailSenderService,
     ExternalDiagnosticsService,
+    FirebaseScheduleStoreService,
+    HealthMonitorSchedulerService,
   ],
   exports: [
     MetricsCollectionService,

@@ -23,6 +23,7 @@ import { FCMToken } from './model/fcm-token.entity';
 import { FCMTokenController } from './controllers/fcm-token.controller';
 import { GoogleMapsService } from 'src/utils/google-maps.service';
 import { CqrsModule } from '@nestjs/cqrs';
+import { DailyReminderPreferenceService } from './services/daily-reminder-preference.service';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     FCMTokenService,
     PushNotificationEventHandler,
     GoogleMapsService,
+    DailyReminderPreferenceService,
   ],
   controllers: [
     UsersController,

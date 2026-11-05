@@ -207,3 +207,16 @@ inside this backend.
 ---
 
 **🚀 Happy building, happy scaling!**
+
+## Daily push reminders
+
+Customers can opt in to a daily push reminder and choose a local time in
+Account Settings. The Expo app saves the preference through
+`GET /api/v1/users/me/daily-reminder` and
+`PATCH /api/v1/users/me/daily-reminder` (`enabled`, 24-hour `time`, and IANA
+`timeZone`). The worker checks due preferences every minute and sends at most
+one reminder per local calendar day to the user's active Expo push tokens.
+
+The feature is disabled by default. Production deployment applies
+`migrations/add_daily_reminder_preferences.sql` before starting the API and
+worker. The schedule runs only on the single `APP_ROLE=worker` instance.

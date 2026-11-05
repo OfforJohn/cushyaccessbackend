@@ -19,12 +19,15 @@ import { UserRoles } from '../model/user-roles.enum';
 import { SkipThrottle } from '@nestjs/throttler';
 import { UpdateBirthdayDto } from '../model/dto/update-birthday.dto';
 import { StandardResponse } from 'src/common/module/standard-response';
+import { DailyReminderPreferenceDto } from '../model/dto/daily-reminder-preference.dto';
+import { DailyReminderPreferenceService } from '../services/daily-reminder-preference.service';
 
 @Controller('api/v1/users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userDetailsService: UsersDetailsService,
+    private readonly dailyReminderPreferenceService: DailyReminderPreferenceService,
   ) {}
 
   @Get('/me')
@@ -61,6 +64,22 @@ export class UsersController {
       false,
       'BIRTHDAY_UPDATED_SUCCESSFULLY',
       data,
+    );
+  }
+
+  @Get('/me/daily-reminder')
+  async getDailyReminderPreference(@Req() req: Request & { user: Users }) {
+    return await this.dailyReminderPreferenceService.getPreference(req.user.id);
+  }
+
+  @Patch('/me/daily-reminder')
+  async updateDailyReminderPreference(
+    @Req() req: Request & { user: Users },
+    @Body() preference: DailyReminderPreferenceDto,
+  ) {
+    return await this.dailyReminderPreferenceService.updatePreference(
+      req.user.id,
+      preference,
     );
   }
 

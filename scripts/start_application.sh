@@ -18,6 +18,9 @@ while IFS='=' read -r key value; do
   fi
 done < .env
 
+# Apply idempotent SQL changes before either application role starts.
+node scripts/run-daily-reminder-migration.js
+
 # 5. Start the single worker first. It is the only production process allowed
 # to run TypeORM schema synchronization, preventing clustered API instances
 # from racing to create the same column/index during deployment.
