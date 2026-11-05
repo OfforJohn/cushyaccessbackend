@@ -1,9 +1,16 @@
 import { DailyReminderSchedulerService } from './daily-reminder-scheduler.service';
 
 describe('DailyReminderSchedulerService', () => {
-  const previousRole = process.env.APP_ROLE;
-
   const createHarness = () => {
+    const queryRunner = {
+      connect: jest.fn().mockResolvedValue(undefined),
+      query: jest.fn(async (sql: string) =>
+        sql.includes('pg_try_advisory_lock')
+          ? [{ acquired: true }]
+          : [{ pg_advisory_unlock: true }],
+      ),
+      release: jest.fn().mockResolvedValue(undefined),
+    };
     const queryBuilder = {
       update: jest.fn().mockReturnThis(),
       set: jest.fn().mockReturnThis(),
@@ -20,21 +27,26 @@ describe('DailyReminderSchedulerService', () => {
     const notificationService = {
       sendToUser: jest.fn().mockResolvedValue({ sent: 1 }),
     };
+    const dataSource = {
+      createQueryRunner: jest.fn(() => queryRunner),
+    };
     const service = new DailyReminderSchedulerService(
       usersRepository as any,
       notificationService as any,
+      dataSource as any,
     );
 
-    return { service, usersRepository, notificationService, queryBuilder };
+    return {
+      service,
+      usersRepository,
+      notificationService,
+      queryBuilder,
+      dataSource,
+      queryRunner,
+    };
   };
 
-  afterEach(() => {
-    if (previousRole === undefined) delete process.env.APP_ROLE;
-    else process.env.APP_ROLE = previousRole;
-  });
-
-  it('sends due reminders and records the local send date on the worker', async () => {
-    process.env.APP_ROLE = 'worker';
+  it('sends due reminders on the API instance and records the local send date', async () => {
     const harness = createHarness();
 
     await harness.service.sendDueDailyReminders();
@@ -49,20 +61,23 @@ describe('DailyReminderSchedulerService', () => {
     expect(harness.queryBuilder.set).toHaveBeenCalledWith({
       dailyReminderLastSentDate: '2026-11-04',
     });
+    expect(harness.queryRunner.release).toHaveBeenCalledTimes(1);
   });
 
-  it('does not send reminders on an API instance', async () => {
-    process.env.APP_ROLE = 'api';
+  it('does not process reminders if another instance holds the scheduler lock', async () => {
     const harness = createHarness();
+    harness.queryRunner.query.mockImplementationOnce(async () => [
+      { acquired: false },
+    ]);
 
     await harness.service.sendDueDailyReminders();
 
     expect(harness.usersRepository.query).not.toHaveBeenCalled();
     expect(harness.notificationService.sendToUser).not.toHaveBeenCalled();
+    expect(harness.queryRunner.release).toHaveBeenCalledTimes(1);
   });
 
   it('leaves the date unmarked when the push request fails', async () => {
-    process.env.APP_ROLE = 'worker';
     const harness = createHarness();
     harness.notificationService.sendToUser.mockRejectedValue(
       new Error('Expo unavailable'),

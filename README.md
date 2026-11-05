@@ -219,4 +219,5 @@ one reminder per local calendar day to the user's active Expo push tokens.
 
 The feature is disabled by default. Production deployment applies
 `migrations/add_daily_reminder_preferences.sql` before starting the API and
-worker. The schedule runs only on the single `APP_ROLE=worker` instance.
+worker. The reminder scheduler runs on API or worker instances and uses a
+PostgreSQL advisory lock so only one instance processes reminders at a time.

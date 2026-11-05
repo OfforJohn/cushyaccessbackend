@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { NotificationService } from './notification.service';
 import { Users } from '../../users/model/users.entity';
 
@@ -21,16 +21,27 @@ export class DailyReminderSchedulerService {
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
     private readonly notificationService: NotificationService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async sendDueDailyReminders(): Promise<void> {
-    if (process.env.APP_ROLE !== 'worker' || this.isRunning) {
-      return;
-    }
-
-    this.isRunning = true;
+    if (this.isRunning) return;
+    const queryRunner = this.dataSource.createQueryRunner();
+    let connected = false;
+    let lockAcquired = false;
     try {
+      await queryRunner.connect();
+      connected = true;
+      const [lock] = await queryRunner.query(
+        'SELECT pg_try_advisory_lock(hashtext($1)) AS acquired',
+        ['daily-push-reminder-scheduler'],
+      );
+      if (lock?.acquired !== true) return;
+
+      lockAcquired = true;
+      this.isRunning = true;
       const dueUsers: DueDailyReminder[] = await this.usersRepository.query(`
         SELECT
           user_row."id" AS "userId",
@@ -70,6 +81,31 @@ export class DailyReminderSchedulerService {
         }`,
       );
     } finally {
+      try {
+        if (lockAcquired) {
+          await queryRunner.query(
+            'SELECT pg_advisory_unlock(hashtext($1))',
+            ['daily-push-reminder-scheduler'],
+          );
+        }
+      } catch (error) {
+        this.logger.error(
+          `Could not release daily reminder scheduler lock: ${
+            error instanceof Error ? error.message : 'unknown error'
+          }`,
+        );
+      }
+      if (connected) {
+        try {
+          await queryRunner.release();
+        } catch (error) {
+          this.logger.error(
+            `Could not release daily reminder database connection: ${
+              error instanceof Error ? error.message : 'unknown error'
+            }`,
+          );
+        }
+      }
       this.isRunning = false;
     }
   }
